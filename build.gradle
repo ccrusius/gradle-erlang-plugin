@@ -28,9 +28,9 @@ dependencies {
 }
 
 pluginBundle {
-  website = "http://github.com/XXX"
-  vcsUrl = "http://github.com/XXX"
-  description = 'Compile Erlang'
+  website = "https://github.com/ccrusius/gradle-erlang-plugin"
+  vcsUrl = "https://github.com/ccrusius/gradle-erlang-plugin"
+  description = 'Erlang plugin for Gradle'
 
   plugins {
     erlangPlugin {

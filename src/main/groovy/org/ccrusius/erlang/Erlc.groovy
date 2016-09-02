@@ -2,7 +2,10 @@ package org.ccrusius.erlang
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
@@ -20,12 +23,9 @@ class Erlc extends DefaultTask {
     this.source = source
   }
 
-  void sourceFile(Object source) {
-    this.source = source
-  }
-
   private Object source
 
+  @Internal
   String getSourceExtension() {
     def name = getSourceFile().getName()
     def idx = name.lastIndexOf('.')
@@ -35,6 +35,7 @@ class Erlc extends DefaultTask {
     null
   }
 
+  @Internal
   String getSourceBaseName() {
     def name = getSourceFile().getName()
     def idx = name.lastIndexOf('.')
@@ -44,6 +45,7 @@ class Erlc extends DefaultTask {
     name
   }
 
+  @Internal
   String getOutputExtension() {
     def inp = getSourceExtension()
     if(inp == ".erl" || inp == ".S" || inp == ".core") {
@@ -55,36 +57,34 @@ class Erlc extends DefaultTask {
     throw new GradleException('Erlang source file has unsupported extension.')
   }
 
+  @OutputDirectory
   File getOutputDir() {
-    if(this.outDir == null) { return getSourceFile().getParentFile() }
-    project.file(this.outDir)
+    if(this.outputDir == null) { return getSourceFile().getParentFile() }
+    project.file(this.outputDir)
   }
 
   void setOutputDir(Object dir) {
-    this.outDir = dir
+    this.outputDir = dir
   }
 
-  void outputDir(Object dir) {
-    this.outDir = dir
-  }
-
-  private Object outDir
+  private Object outputDir
 
   @OutputFile
   File getOutputFile() {
-    if(this.outFile == null) {
+    if(this.outputFile == null) {
       project.file(
         getOutputDir().toString()
         + "/" + getSourceBaseName()
         + getOutputExtension())
     }
     else {
-      project.file(this.outFile)
+      project.file(this.outputFile)
     }
   }
 
-  private Object outFile
+  private Object outputFile
 
+  @Input
   String getCompiler() {
     if(this.compiler == null) {
       return project.extensions.erlang.erlc
@@ -93,10 +93,6 @@ class Erlc extends DefaultTask {
   }
 
   void setCompiler(Object compiler) {
-    this.compiler = compiler
-  }
-
-  void compiler(Object compiler) {
     this.compiler = compiler
   }
 

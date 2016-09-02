@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ccrusius/gradle-erlang-plugin.svg?branch=master)](https://travis-ci.org/ccrusius/gradle-erlang-plugin)
+
 # Erlang Plugin for Gradle
 
 This Gradle plugin provides basic Erlang building functionality for

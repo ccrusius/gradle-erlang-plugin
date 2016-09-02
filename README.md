@@ -33,7 +33,7 @@ installation in your `$PATH`.
 You can get the output of an arbitrary Erlang expression evaluation by
 using the `eval` function:
 ```groovy
-def erlangVersion = erlang.eval('io:format("~w",[1+1]')
+def erlangVersion = erlang.eval('io:format("~w",[1+1])')
 ```
 
 ## Compiling Erlang Code

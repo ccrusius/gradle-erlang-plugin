@@ -19,15 +19,6 @@ class ErlangPlugin implements Plugin<Project> {
       ErlangExtension,
       project)
 
-    project.afterEvaluate {
-      if(!project.extensions.erlang.erl) {
-        project.extensions.erlang.erl = "erl"
-      }
-      if(!project.extensions.erlang.erlc) {
-        project.extensions.erlang.erlc = "erlc"
-      }
-    }
-
     project.logger.info("[Erlang] ${extension.version}")
     project.logger.info("[Erlang] groovy-dsl: ${extension.groovyDslVersion}")
   }

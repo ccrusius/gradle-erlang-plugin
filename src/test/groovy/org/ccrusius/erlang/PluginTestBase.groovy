@@ -47,4 +47,11 @@ class PluginTestBase extends Specification {
     getGradle().withArguments(task).build()
   }
 
+  File getResourcesDir() {
+    new File(getClass().classLoader
+             .getResource('README.md')
+             .toURI())
+    .parentFile
+  }
+
 }

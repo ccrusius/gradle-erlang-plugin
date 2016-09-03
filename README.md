@@ -13,19 +13,18 @@ packages using Erlang's
 ## Basic Use
 
 1. Install this plugin
-2. Configure paths to Erlang executables
+2. Configure path to Erlang installation
 3. Compile and evaluate at will
 
 ## Specifying which Erlang to Use
 
-The erlang extension has properties that allow you to specify where
-the Erlang executables are:
-
-* `erlang.erl`: The Erlang shell command.
-* `erlang.erlc`: The Erlang compiler.
-* `erlang.escript`: The Erlang script executor.
-
-All of those have defaults that work if you have an Erlang
+The Erlang installation to be used is given by the `installation`
+property of the `erlang` extension. You can switch installations by
+calling the `setRoot` method, as for example in
+```groovy
+erlang.installation.setRoot('/opt/erlang/r16b03-1')
+```
+The default value for the root will work if you have an Erlang
 installation in your `$PATH`.
 
 ## Evaluating Erlang Code
@@ -33,8 +32,10 @@ installation in your `$PATH`.
 You can get the output of an arbitrary Erlang expression evaluation by
 using the `eval` function:
 ```groovy
-def erlangVersion = erlang.eval('io:format("~w",[1+1])')
+def erlangVersion = erlang.eval('io:format("~w",[1+1]).')
 ```
+The `erlang.eval` function is a shortcut for
+`erlang.installation.getEscript().eval`.
 
 ## Compiling Erlang Code
 

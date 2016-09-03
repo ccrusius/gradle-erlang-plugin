@@ -19,6 +19,19 @@ dependencies {
   }
 }
 
+task createTestProperties {
+  def outFile = file("${buildDir}/resources/test/org.ccrusius.erlang.test.properties")
+  outputs.file outFile
+  doLast {
+    outFile.parentFile.mkdirs()
+    outFile.text = """gradleBuildDir=${buildDir}
+                      gradleTestResultsDir=${testResultsDir}
+    """.stripIndent()
+  }
+}
+
+test.dependsOn(['createTestProperties'])
+
 pluginBundle {
   website = "https://github.com/ccrusius/gradle-erlang-plugin"
   vcsUrl = "https://github.com/ccrusius/gradle-erlang-plugin"

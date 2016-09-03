@@ -2,30 +2,39 @@ package org.ccrusius.erlang
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.BuildResult
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class PluginTestBase extends Specification {
-  @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+  Properties props = new Properties()
+
+  File testProjectDir
 
   def setup () {
+    props.load(
+      getClass().classLoader
+      .getResourceAsStream('org.ccrusius.erlang.test.properties'))
+
+    def baseDir = new File(
+      props.getProperty('gradleBuildDir'),
+      'test-projects')
+    baseDir.mkdirs()
+
+    testProjectDir = new File(baseDir, getClass().simpleName)
+    if(testProjectDir.exists()) {
+      assert testProjectDir.deleteDir()
+    }
+    testProjectDir.mkdirs()
   }
 
   File file(String path) {
-    File f = new File(testProjectDir.root, path)
-    if(!f.exists()) {
-      f.parentFile.mkdirs()
-      return testProjectDir.newFile(path)
-    }
+    File f = new File(testProjectDir, path)
+    f.parentFile.mkdirs()
     return f
   }
 
   File dir(String path) {
-    File f = new File(testProjectDir.root, path)
-    if(!f.exists()) {
-      return testProjectDir.newFolder(path.split('/'))
-    }
+    File f = new File(testProjectDir, path)
+    f.mkdirs()
     return f
   }
 
@@ -39,12 +48,13 @@ class PluginTestBase extends Specification {
 
   GradleRunner getGradle() {
     GradleRunner.create()
-    .withProjectDir(testProjectDir.root)
+    .withProjectDir(testProjectDir)
     .withPluginClasspath()
+    .forwardOutput()
   }
 
   BuildResult runGradleTask(String task) {
-    getGradle().withArguments(task).build()
+    getGradle().withArguments("--info", task).build()
   }
 
   File getResourcesDir() {

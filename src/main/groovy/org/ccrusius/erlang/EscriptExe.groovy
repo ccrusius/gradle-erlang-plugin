@@ -18,6 +18,10 @@ class EscriptExe {
     this.exe = exe
   }
 
+  String unixPath(Object path) {
+    project.file(path).absolutePath.replaceAll("\\\\","/")
+  }
+
   String run(File script) {
     def cmdline = [ exe, script.absolutePath ]
     project.logger.debug("EscriptExe.run(${cmdline.join(' ')})")

@@ -61,8 +61,8 @@ class PluginTestBase extends Specification {
     .withProjectDir(testProjectDir)
     .withArguments(
       "--info",
-      "-PbuildDir=${testBuildDir.absolutePath}",
-      "--project-cache-dir=${testCacheDir.absolutePath}")
+      "-PbuildDir=${unixPath(testBuildDir)}",
+      "--project-cache-dir=${unixPath(testCacheDir)}")
     .withPluginClasspath()
     .forwardOutput()
   }

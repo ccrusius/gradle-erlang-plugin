@@ -48,7 +48,7 @@ class Application extends DefaultTask {
     def appFile = getAppFile()
     def escript = project.extensions.erlang.installation.getEscript()
     escript.eval("""
-      {ok,[{application,AppName,_}]}=file:consult("${appFile.absolutePath}"),
+      {ok,[{application,AppName,_}]}=file:consult("${escript.unixPath(appFile)}"),
       io:format("~w",[AppName]).
     """)
   }

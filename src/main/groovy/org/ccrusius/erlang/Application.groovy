@@ -17,6 +17,9 @@ class Application extends DefaultTask {
 
   @InputDirectory
   File getBaseDir() {
+    if(this.baseDir == null) {
+      return project.file(".")
+    }
     return project.file(this.baseDir)
   }
 

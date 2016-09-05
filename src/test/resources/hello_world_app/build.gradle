@@ -1,0 +1,7 @@
+plugins {
+  id 'org.ccrusius.erlang'
+}
+
+task build_app(type: org.ccrusius.erlang.Application) {
+  setBaseDir '.'
+}

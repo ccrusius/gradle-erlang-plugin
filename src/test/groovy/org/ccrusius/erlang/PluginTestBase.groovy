@@ -9,6 +9,10 @@ class PluginTestBase extends Specification {
 
   File testProjectDir
 
+  File testBuildDir
+
+  File testCacheDir
+
   def setup () {
     props.load(
       getClass().classLoader
@@ -24,6 +28,12 @@ class PluginTestBase extends Specification {
       assert testProjectDir.deleteDir()
     }
     testProjectDir.mkdirs()
+
+    testBuildDir = new File(testProjectDir, "build")
+    testBuildDir.mkdirs()
+
+    testCacheDir = new File(testProjectDir, ".gradle")
+    testCacheDir.mkdirs()
   }
 
   File file(String path) {
@@ -49,12 +59,17 @@ class PluginTestBase extends Specification {
   GradleRunner getGradle() {
     GradleRunner.create()
     .withProjectDir(testProjectDir)
+    .withArguments(
+      "--info",
+      "-PbuildDir=${testBuildDir.absolutePath}",
+      "--project-cache-dir=${testCacheDir.absolutePath}")
     .withPluginClasspath()
     .forwardOutput()
   }
 
   BuildResult runGradleTask(String task) {
-    getGradle().withArguments("--info", task).build()
+    def gradle = getGradle()
+    gradle.withArguments(gradle.getArguments() + task).build()
   }
 
   File getResourcesDir() {

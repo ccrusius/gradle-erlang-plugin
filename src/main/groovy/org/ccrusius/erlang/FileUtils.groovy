@@ -2,31 +2,32 @@ package org.ccrusius.erlang
 
 import org.gradle.api.GradleException
 
-/** An Erlang source file.
- *
- * This extends the File class, which arguably should not be done. But
- * it is the most convenient way.
- *
- * @author Cesar Crusius
- */
-class ErlSourceFile extends File {
+class FileUtils {
 
-  String getExtension() {
-    def name = getName()
+  static String getUnixPath(String path) {
+    path.replaceAll("\\\\","/")
+  }
+
+  static String getAbsolutePath(File file) {
+    getUnixPath(file.absolutePath)
+  }
+
+  static String getExtension(File file) {
+    def name = file.name
     def idx = name.lastIndexOf('.')
     if(idx > 0) { return name.substring(idx) }
     null
   }
 
-  String getBaseName() {
-    def name = getName()
+  static String getBaseName(File file) {
+    def name = file.name
     def idx = name.lastIndexOf('.')
     if(idx > 0) { return name.substring(0,idx) }
     name
   }
 
-  String getCompiledExtension() {
-    def inp = getExtension()
+  static String getCompiledExtension(File file) {
+    def inp = getExtension(file)
     if(inp == ".erl" || inp == ".S" || inp == ".core") {
       return ".beam"
     }
@@ -36,11 +37,8 @@ class ErlSourceFile extends File {
     throw new GradleException('Erlang source file has unsupported extension.')
   }
 
-  String getCompiledName() {
-    getBaseName() + getCompiledExtension()
+  static String getCompiledName(File file) {
+    getBaseName(file) + getCompiledExtension(file)
   }
 
-  ErlSourceFile(File base) {
-    super(base.absolutePath)
-  }
 }

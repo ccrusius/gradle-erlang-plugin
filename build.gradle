@@ -24,9 +24,11 @@ task createTestProperties {
   outputs.file outFile
   doLast {
     outFile.parentFile.mkdirs()
-    outFile.text = """gradleBuildDir=${buildDir}
-                      gradleTestResultsDir=${testResultsDir}
-    """.stripIndent()
+    def unixBuildDir = buildDir.absolutePath.replaceAll("\\\\","/")
+    def unixResultsDir = testResultsDir.absolutePath.replaceAll("\\\\","/")
+    outFile.text = """\
+      gradleBuildDir=${unixBuildDir}
+      gradleTestResultsDir=${unixResultsDir}""".stripIndent()
   }
 }
 

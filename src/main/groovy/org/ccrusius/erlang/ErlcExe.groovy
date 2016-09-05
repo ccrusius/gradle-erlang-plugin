@@ -18,7 +18,7 @@ class ErlcExe {
     this.exe = exe
   }
 
-  void run(ErlSourceFile source, File outDir) {
+  void run(File source, File outDir) {
     project.logger.info('Compiling ' + source.name)
 
     if(outDir == null) { outDir = source.parentFile }
@@ -27,7 +27,7 @@ class ErlcExe {
 
     def command = [
       exe,
-      "-o", outDir.toString() + "/",
+      "-o", FileUtils.getUnixPath(outDir.toString() + "/"),
       source.toString()
     ]
 

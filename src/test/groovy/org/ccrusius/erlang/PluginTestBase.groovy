@@ -48,10 +48,6 @@ class PluginTestBase extends Specification {
     return f
   }
 
-  String unixPath(File file) {
-    return file.absolutePath.replaceAll("\\\\","/")
-  }
-
   File getBuildFile() {
     return file('build.gradle')
   }
@@ -61,8 +57,8 @@ class PluginTestBase extends Specification {
     .withProjectDir(testProjectDir)
     .withArguments(
       "--info",
-      "-PbuildDir=${unixPath(testBuildDir)}",
-      "--project-cache-dir=${unixPath(testCacheDir)}")
+      "-PbuildDir=${FileUtils.getAbsolutePath(testBuildDir)}",
+      "--project-cache-dir=${FileUtils.getAbsolutePath(testCacheDir)}")
     .withPluginClasspath()
     .forwardOutput()
   }

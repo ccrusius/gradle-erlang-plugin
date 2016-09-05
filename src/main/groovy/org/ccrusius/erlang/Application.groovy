@@ -31,9 +31,8 @@ class Application extends DefaultTask {
 
   @InputFile
   File getAppFile() {
-    def dir = new File(getBaseDir(), "ebin")
-    def all = dir.listFiles().collect { new ErlSourceFile(it) }
-    def candidates = all.findAll { it.getExtension() == '.app' }
+    def all = new File(getBaseDir(), "ebin").listFiles()
+    def candidates = all.findAll { FileUtils.getExtension(it) == '.app' }
     if(candidates.size() == 0) {
       throw new GradleException("No .app file in '${dir.absolutePath}'")
     }
@@ -45,27 +44,25 @@ class Application extends DefaultTask {
 
   @Internal
   String getAppName() {
-    def appFile = getAppFile()
+    def appFile = FileUtils.getAbsolutePath(getAppFile())
     def escript = project.extensions.erlang.installation.getEscript()
     escript.eval("""
-      {ok,[{application,AppName,_}]}=file:consult("${escript.unixPath(appFile)}"),
+      {ok,[{application,AppName,_}]}=file:consult(\"${appFile}\"),
       io:format("~w",[AppName]).
     """)
   }
 
   @InputFiles
   List getSourceFiles() {
-    def dir = new File(getBaseDir(),"src")
-    def all = dir.listFiles().collect { new ErlSourceFile(it) }
-    all.findAll { it.getExtension() == '.erl' }
+    def all = new File(getBaseDir(),"src").listFiles()
+    all.findAll { FileUtils.getExtension(it) == '.erl' }
   }
 
   @OutputDirectory
   File getOutputDir() {
     if(this.outputDir == null) {
-      this.outputDir = new File(
-        "${project.buildDir.absolutePath}/erlang/lib",
-        getAppName())
+      this.outputDir =
+        "${FileUtils.getAbsolutePath(project.buildDir)}/erlang/lib/${getAppName()}"
     }
     project.file(this.outputDir)
   }
@@ -77,8 +74,8 @@ class Application extends DefaultTask {
     def dir = getOutputDir()
     getSourceFiles().collect {
       new File(
-        "${dir.absolutePath}/ebin",
-        it.getCompiledName())
+        "${FileUtils.getAbsolutePath(dir)}/ebin/${FileUtils.getCompiledName(it)}"
+      )
     }
   }
 

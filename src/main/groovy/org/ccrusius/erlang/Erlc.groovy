@@ -12,8 +12,8 @@ import org.gradle.api.tasks.TaskAction
 class Erlc extends DefaultTask {
 
   @InputFile
-  ErlSourceFile getSourceFile() {
-    new ErlSourceFile(project.file(this.source))
+  File getSourceFile() {
+    project.file(this.source)
   }
 
   void setSourceFile(Object source) {
@@ -39,7 +39,7 @@ class Erlc extends DefaultTask {
     if(this.outputFile == null) {
       this.outputFile = project.file(
         getOutputDir().toString()
-        + "/" + getSourceFile().getCompiledName())
+        + "/" + FileUtils.getCompiledName(getSourceFile()))
     }
     project.file(this.outputFile)
   }

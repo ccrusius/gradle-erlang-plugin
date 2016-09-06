@@ -9,17 +9,38 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class ErlangPlugin implements Plugin<Project> {
-  static final String ERLANG = 'erlang'
+  static final String ERLANG_EXTENSION_NAME = 'erlang'
+  static final String OTP_APPLICATION_BUILD_DIR_NAME = "otpApplicationBuildDir"
+  static final String COMPILE_OTP_APPLICATION_TASK_NAME = "compileOtpApplication"
 
   void apply(Project project) {
     project.apply(plugin: 'base')
 
-    ErlangExtension extension = project.extensions.create(
-      ERLANG,
+    configureExtension(project)
+    configureProperties(project)
+    configureApplication(project)
+  }
+
+  private void configureExtension(Project project) {
+    def extension = project.extensions.create(
+      ERLANG_EXTENSION_NAME,
       ErlangExtension,
       project)
 
     project.logger.info("[Erlang] ${extension.version}")
     project.logger.info("[Erlang] groovy-dsl: ${extension.groovyDslVersion}")
+  }
+
+  private void configureProperties(Project project) {
+    project.extensions.add(
+      OTP_APPLICATION_BUILD_DIR_NAME,
+      "${project.buildDir}/erlang/lib/${project.name}")
+  }
+
+  private void configureApplication(Project project) {
+    Application app = project.getTasks().create(
+      COMPILE_OTP_APPLICATION_TASK_NAME,
+      Application.class)
+    app.setDescription("Compile the main OTP application.")
   }
 }

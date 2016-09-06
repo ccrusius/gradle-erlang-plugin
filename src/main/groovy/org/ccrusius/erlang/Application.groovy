@@ -61,8 +61,7 @@ class Application extends DefaultTask {
   @OutputDirectory
   File getOutputDir() {
     if(this.outputDir == null) {
-      this.outputDir =
-        "${FileUtils.getAbsolutePath(project.buildDir)}/erlang/lib/${getAppName()}"
+      this.outputDir = "${project.otpApplicationBuildDir}"
     }
     project.file(this.outputDir)
   }

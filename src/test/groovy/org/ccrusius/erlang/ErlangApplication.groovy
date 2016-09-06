@@ -17,10 +17,10 @@ class ErlangApplicationTest extends PluginTestBase {
 
     when:
 
-    def result = runGradleTask('build_app')
+    def result = runGradleTask('compileOtpApplication')
 
     then:
 
-    result.task(':build_app').outcome == SUCCESS
+    result.task(':compileOtpApplication').outcome == SUCCESS
   }
 }

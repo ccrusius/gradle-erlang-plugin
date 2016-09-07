@@ -3,7 +3,6 @@ package org.ccrusius.erlang
 import org.ccrusius.erlang.PluginTestBase
 
 import static org.gradle.testkit.runner.TaskOutcome.*
-import java.nio.file.Files
 
 class ErlangApplicationTest extends PluginTestBase {
 

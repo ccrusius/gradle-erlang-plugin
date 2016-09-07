@@ -7,6 +7,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 
@@ -40,6 +41,13 @@ class Application extends DefaultTask {
       throw new GradleException("Too many .app files in '${dir.absolutePath}'")
     }
     return candidates[0]
+  }
+
+  @OutputFile
+  File getOutAppFile() {
+    new File(
+      "${getOutputDir()}/ebin",
+      "${getAppFile().name}")
   }
 
   @Internal
@@ -81,11 +89,20 @@ class Application extends DefaultTask {
   @TaskAction
   void build() {
     logger.info("Building application ${getAppName()}")
+    //
+    // Prepare output directory
+    //
     def outputEbin = new File(getOutputDir(), "ebin")
     outputEbin.mkdirs()
-
+    //
+    // Compile all source Erlang files
+    //
     def erlc = project.extensions.erlang.installation.getErlc()
     getSourceFiles().each { erlc.run(it, outputEbin) }
+    //
+    // Copy application file
+    //
+    getOutAppFile() << getAppFile().bytes
   }
 
 }

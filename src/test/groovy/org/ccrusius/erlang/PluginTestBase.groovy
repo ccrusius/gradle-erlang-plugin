@@ -24,21 +24,26 @@ class PluginTestBase extends Specification {
     baseDir.mkdirs()
 
     testProjectDir = new File(baseDir, getClass().simpleName)
-    if(testProjectDir.exists()) {
-      assert testProjectDir.deleteDir()
-    }
     testProjectDir.mkdirs()
 
-    testBuildDir = new File(testProjectDir, "build")
-    testBuildDir.mkdirs()
+    setTestBuildDir(new File(testProjectDir, "build"))
 
     testCacheDir = new File(testProjectDir, ".gradle")
     testCacheDir.mkdirs()
   }
 
-  File file(String path) {
+  void setTestBuildDir(File newDir) {
+    testBuildDir = newDir
+    if(testBuildDir.exists()) {
+      assert testBuildDir.deleteDir()
+    }
+    testBuildDir.mkdirs()
+  }
+
+  File emptyProjectFile(String path) {
     File f = new File(testProjectDir, path)
     f.parentFile.mkdirs()
+    if(f.exists()) { f.delete() }
     return f
   }
 
@@ -48,8 +53,8 @@ class PluginTestBase extends Specification {
     return f
   }
 
-  File getBuildFile() {
-    return file('build.gradle')
+  File emptyBuildFile() {
+    return emptyProjectFile('build.gradle')
   }
 
   GradleRunner getGradle() {
@@ -57,6 +62,7 @@ class PluginTestBase extends Specification {
     .withProjectDir(testProjectDir)
     .withArguments(
       "--info",
+      "--stacktrace",
       "-PbuildDir=${FileUtils.getAbsolutePath(testBuildDir)}",
       "--project-cache-dir=${FileUtils.getAbsolutePath(testCacheDir)}")
     .withPluginClasspath()

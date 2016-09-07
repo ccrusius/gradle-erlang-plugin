@@ -10,11 +10,12 @@ import org.gradle.api.Project
 
 class ErlangPlugin implements Plugin<Project> {
   static final String ERLANG_EXTENSION_NAME = 'erlang'
-  static final String OTP_APPLICATION_BUILD_DIR_NAME = "otpApplicationBuildDir"
-  static final String COMPILE_OTP_APPLICATION_TASK_NAME = "compileOtpApplication"
+  static final String ERLANG_BUILD_DIR_NAME = 'ebuildDir'
+  static final String ERLANG_BUILD_TASK_NAME = 'ebuild'
 
   void apply(Project project) {
     project.apply(plugin: 'base')
+    project.logger.info("[Erlang] Applying plugin for project ${project.name}")
 
     configureExtension(project)
     configureProperties(project)
@@ -33,13 +34,13 @@ class ErlangPlugin implements Plugin<Project> {
 
   private void configureProperties(Project project) {
     project.extensions.add(
-      OTP_APPLICATION_BUILD_DIR_NAME,
-      "${project.buildDir}/erlang/lib/${project.name}")
+      ERLANG_BUILD_DIR_NAME,
+      "${project.buildDir}/erlang")
   }
 
   private void configureApplication(Project project) {
     Application app = project.getTasks().create(
-      COMPILE_OTP_APPLICATION_TASK_NAME,
+      ERLANG_BUILD_TASK_NAME,
       Application.class)
     app.setDescription("Compile the main OTP application.")
   }

@@ -8,7 +8,7 @@ class ErlangCompileTest extends PluginTestBase {
 
   def "hello, world"() {
     def ebin = dir('hello_world/ebin')
-    def erl = file('hello_world/src/hello_world.erl')
+    def erl = emptyProjectFile('hello_world/src/hello_world.erl')
 
     given:
 
@@ -18,7 +18,7 @@ class ErlangCompileTest extends PluginTestBase {
       hello_world() -> io:format(\"hello, world!~n\").
     """
 
-    getBuildFile() << """
+    emptyBuildFile() << """
       plugins {
         id 'org.ccrusius.erlang'
       }

@@ -7,7 +7,7 @@ import static org.gradle.testkit.runner.TaskOutcome.*
 class ErlangEvalTest extends PluginTestBase {
   def "erlang eval"() {
     given:
-    getBuildFile() << """
+    emptyBuildFile() << """
       plugins {
         id 'org.ccrusius.erlang'
       }

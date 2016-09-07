@@ -19,7 +19,7 @@ class Application extends DefaultTask {
   @InputDirectory
   File getBaseDir() {
     if(this.baseDir == null) {
-      return project.file(".")
+      return project.file("${project.projectDir}")
     }
     return project.file(this.baseDir)
   }
@@ -32,7 +32,8 @@ class Application extends DefaultTask {
 
   @InputFile
   File getAppFile() {
-    def all = new File(getBaseDir(), "ebin").listFiles()
+    def dir = new File(getBaseDir(), "ebin")
+    def all = dir.listFiles()
     def candidates = all.findAll { FileUtils.getExtension(it) == '.app' }
     if(candidates.size() == 0) {
       throw new GradleException("No .app file in '${dir.absolutePath}'")
@@ -60,6 +61,16 @@ class Application extends DefaultTask {
     """)
   }
 
+  @Internal
+  String getAppVsn() {
+    def appFile = FileUtils.getAbsolutePath(getAppFile())
+    def escript = project.extensions.erlang.installation.getEscript()
+    escript.eval("""
+      {ok,[{application,_,Props}]}=file:consult(\"${appFile}\"),
+      io:format("~s",[proplists:get_value(vsn, Props)]).
+    """)
+  }
+
   @InputFiles
   List getSourceFiles() {
     def all = new File(getBaseDir(),"src").listFiles()
@@ -69,7 +80,7 @@ class Application extends DefaultTask {
   @OutputDirectory
   File getOutputDir() {
     if(this.outputDir == null) {
-      this.outputDir = "${project.otpApplicationBuildDir}"
+      this.outputDir = "${project.ebuildDir}/lib/${getAppName()}-${getAppVsn()}"
     }
     project.file(this.outputDir)
   }

@@ -1,0 +1,3 @@
+rootProject.name="erlcount"
+include (':ppool')
+include (':erlcount')

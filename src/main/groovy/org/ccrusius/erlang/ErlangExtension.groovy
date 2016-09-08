@@ -12,9 +12,12 @@ class ErlangExtension {
 
   ErlangInstallation installation
 
+  utils.AppFile appFile
+
   ErlangExtension(Project project) {
     this.project = project
     this.installation = new ErlangInstallation(project)
+    this.appFile = new utils.AppFile(project)
   }
 
   String eval(String command, List erlArgs = []) {

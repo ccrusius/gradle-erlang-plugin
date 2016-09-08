@@ -43,12 +43,12 @@ class ErlangInstallation {
 
   ErlcExe getErlc() {
     def e = getErts()
-    return new ErlcExe(project, e == null ? "erlc" : FileUtils.getUnixPath("$e/bin/erlc"))
+    return new ErlcExe(project, e == null ? "erlc" : utils.FileUtils.getUnixPath("$e/bin/erlc"))
   }
 
   EscriptExe getEscript() {
     def e = getErts()
-    return new EscriptExe(project, e == null ? "escript" : FileUtils.getUnixPath("$e/bin/escript"))
+    return new EscriptExe(project, e == null ? "escript" : utils.FileUtils.getUnixPath("$e/bin/escript"))
   }
 
 }

@@ -27,7 +27,7 @@ class ErlcExe {
 
     def command = [
       exe,
-      "-o", FileUtils.getUnixPath(outDir.toString() + "/"),
+      "-o", utils.FileUtils.getUnixPath(outDir.toString() + "/"),
       source.toString()
     ]
 

@@ -32,16 +32,7 @@ class Application extends DefaultTask {
 
   @InputFile
   File getAppFile() {
-    def dir = new File(getBaseDir(), "ebin")
-    def all = dir.listFiles()
-    def candidates = all.findAll { FileUtils.getExtension(it) == '.app' }
-    if(candidates.size() == 0) {
-      throw new GradleException("No .app file in '${dir.absolutePath}'")
-    }
-    if(candidates.size() > 1) {
-      throw new GradleException("Too many .app files in '${dir.absolutePath}'")
-    }
-    return candidates[0]
+    project.extensions.erlang.appFile.appFile
   }
 
   @OutputFile
@@ -51,38 +42,19 @@ class Application extends DefaultTask {
       "${getAppFile().name}")
   }
 
-  @Internal
-  String getAppName() {
-    def appFile = FileUtils.getAbsolutePath(getAppFile())
-    def escript = project.extensions.erlang.installation.getEscript()
-    escript.eval("""
-      {ok,[{application,AppName,_}]}=file:consult(\"${appFile}\"),
-      io:format("~w",[AppName]).
-    """)
-  }
-
-  @Internal
-  String getAppVsn() {
-    def appFile = FileUtils.getAbsolutePath(getAppFile())
-    def escript = project.extensions.erlang.installation.getEscript()
-    escript.eval("""
-      {ok,[{application,_,Props}]}=file:consult(\"${appFile}\"),
-      io:format("~s",[proplists:get_value(vsn, Props)]).
-    """)
-  }
-
   @InputFiles
   List getSourceFiles() {
     def all = new File(getBaseDir(),"src").listFiles()
-    all.findAll { FileUtils.getExtension(it) == '.erl' }
+    all.findAll { utils.FileUtils.getExtension(it) == '.erl' }
   }
 
   @OutputDirectory
   File getOutputDir() {
-    if(this.outputDir == null) {
-      this.outputDir = "${project.ebuildDir}/lib/${getAppName()}-${getAppVsn()}"
+    if(outputDir == null) {
+      def ext = project.extensions.erlang
+      outputDir = "${project.ebuildDir}/lib/${ext.appFile.appName}-${ext.appFile.appVsn}"
     }
-    project.file(this.outputDir)
+    project.file(outputDir)
   }
 
   private Object outputDir
@@ -92,14 +64,14 @@ class Application extends DefaultTask {
     def dir = getOutputDir()
     getSourceFiles().collect {
       new File(
-        "${FileUtils.getAbsolutePath(dir)}/ebin/${FileUtils.getCompiledName(it)}"
+        "${utils.FileUtils.getAbsolutePath(dir)}/ebin/${utils.FileUtils.getCompiledName(it)}"
       )
     }
   }
 
   @TaskAction
   void build() {
-    logger.info("Building application ${getAppName()}")
+    logger.info("Building application ${project.extensions.erlang.appFile.appName}")
     //
     // Prepare output directory
     //
@@ -115,5 +87,4 @@ class Application extends DefaultTask {
     //
     getOutAppFile() << getAppFile().bytes
   }
-
 }

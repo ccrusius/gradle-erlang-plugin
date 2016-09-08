@@ -39,7 +39,7 @@ class Erlc extends DefaultTask {
     if(this.outputFile == null) {
       this.outputFile = project.file(
         getOutputDir().toString()
-        + "/" + FileUtils.getCompiledName(getSourceFile()))
+        + "/" + utils.FileUtils.getCompiledName(getSourceFile()))
     }
     project.file(this.outputFile)
   }

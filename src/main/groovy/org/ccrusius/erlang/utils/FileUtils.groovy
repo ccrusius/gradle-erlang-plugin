@@ -1,4 +1,4 @@
-package org.ccrusius.erlang
+package org.ccrusius.erlang.utils
 
 import org.gradle.api.GradleException
 

@@ -24,14 +24,14 @@ class ErlangCompileTest extends PluginTestBase {
       }
 
       task erlc(type: org.ccrusius.erlang.Erlc) {
-        setSourceFile '${FileUtils.getAbsolutePath(erl)}'
-        setOutputDir '${FileUtils.getAbsolutePath(ebin)}'
+        setSourceFile '${utils.FileUtils.getAbsolutePath(erl)}'
+        setOutputDir '${utils.FileUtils.getAbsolutePath(ebin)}'
       }
 
       task run << {
         println erlang.eval(
           'hello_world:hello_world().',
-          [ '-pa', '${FileUtils.getAbsolutePath(ebin)}' ])
+          [ '-pa', '${utils.FileUtils.getAbsolutePath(ebin)}' ])
       }
       run.dependsOn erlc
     """

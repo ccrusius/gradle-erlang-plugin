@@ -54,7 +54,7 @@ class AppFile {
   }
 
   String getAppVsn() {
-    if(cache.appVsn) { return cache.appName }
+    if(cache.appVsn) { return cache.appVsn }
     def appFile = FileUtils.getAbsolutePath(getAppFile())
     def escript = project.extensions.erlang.installation.getEscript()
     cache.appVsn = escript.eval("""

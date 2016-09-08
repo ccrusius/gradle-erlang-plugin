@@ -1,15 +1,24 @@
-package org.ccrusius.erlang
+package org.ccrusius.erlang.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.ParallelizableTask
+
+import org.ccrusius.erlang.utils.FileUtils
 
 /**
+ * Compile an Erlang source using 'erlc'.
+ *
+ * Most of the time, one will be compiling an '.erl' file into a
+ * '.beam', but this task (should) support anything 'erlc' does.
+ *
  * @author Cesar Crusius
  */
-class Erlc extends DefaultTask {
+@ParallelizableTask
+class Compile extends DefaultTask {
 
   @InputFile
   File getSourceFile() {
@@ -36,12 +45,12 @@ class Erlc extends DefaultTask {
 
   @OutputFile
   File getOutputFile() {
-    if(this.outputFile == null) {
-      this.outputFile = project.file(
-        getOutputDir().toString()
-        + "/" + utils.FileUtils.getCompiledName(getSourceFile()))
+    if(outputFile == null) {
+      outputFile = new File(
+        getOutputDir(),
+        FileUtils.getCompiledName(getSourceFile()))
     }
-    project.file(this.outputFile)
+    project.file(outputFile)
   }
 
   private Object outputFile

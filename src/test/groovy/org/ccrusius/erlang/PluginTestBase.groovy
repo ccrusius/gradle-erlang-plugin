@@ -63,6 +63,7 @@ class PluginTestBase extends Specification {
     .withArguments(
       "--info",
       "--stacktrace",
+      "--parallel",
       "-PbuildDir=${utils.FileUtils.getAbsolutePath(testBuildDir)}",
       "--project-cache-dir=${utils.FileUtils.getAbsolutePath(testCacheDir)}")
     .withPluginClasspath()

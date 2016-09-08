@@ -27,6 +27,13 @@ erlang.installation.setRoot('/opt/erlang/r16b03-1')
 The default value for the root will work if you have an Erlang
 installation in your `$PATH`.
 
+## Compiling OTP Applications
+
+When the plugin is applied, it will create an `ebuild` task if there
+is a `.app` file in the `/ebin` directory. This task will compile an
+OTP application based on the sources in `/src`. Individual task for
+the application's `.beam` files will also be created.
+
 ## Evaluating Erlang Code
 
 You can get the output of an arbitrary Erlang expression evaluation by
@@ -39,7 +46,7 @@ def two = erlang.eval('io:format("~w",[1+1]).')
 
 ## Compiling Erlang Code
 
-The plugin provides an `Erlc` task with a few parameters, settable via
+The plugin provides an `Compile` task with a few parameters, settable via
 the following functions:
 
 * `setSourceFile`: Specifies the path to the Erlang source file to be
@@ -51,7 +58,7 @@ the following functions:
 
 Example:
 ```groovy
-task hello_world_beam(type: org.ccrusius.erlang.Erlc) {
+task hello_world_beam(type: org.ccrusius.erlang.tasks.Compile) {
   setSourceFile 'src/hello_world.erl'
   setOutputDir 'ebin'
 }

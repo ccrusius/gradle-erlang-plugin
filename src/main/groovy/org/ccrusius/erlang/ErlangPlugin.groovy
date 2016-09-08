@@ -39,9 +39,12 @@ class ErlangPlugin implements Plugin<Project> {
   }
 
   private void configureApplication(Project project) {
-    Application app = project.getTasks().create(
-      ERLANG_BUILD_TASK_NAME,
-      Application.class)
-    app.setDescription("Compile the main OTP application.")
+    if(project.extensions.erlang.appFile.appFile) {
+      tasks.Application app = project.getTasks().create(
+        ERLANG_BUILD_TASK_NAME,
+        tasks.Application.class)
+      app.setDescription("Compile the main OTP application.")
+      app.createSubTasks(project)
+    }
   }
 }

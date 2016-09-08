@@ -23,7 +23,7 @@ class ErlangCompileTest extends PluginTestBase {
         id 'org.ccrusius.erlang'
       }
 
-      task erlc(type: org.ccrusius.erlang.Erlc) {
+      task erlc(type: org.ccrusius.erlang.tasks.Compile) {
         setSourceFile '${utils.FileUtils.getAbsolutePath(erl)}'
         setOutputDir '${utils.FileUtils.getAbsolutePath(ebin)}'
       }

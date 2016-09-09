@@ -12,6 +12,8 @@ class ErlangPlugin implements Plugin<Project> {
   static final String ERLANG_EXTENSION_NAME = 'erlang'
   static final String ERLANG_BUILD_DIR_NAME = 'ebuildDir'
   static final String ERLANG_BUILD_TASK_NAME = 'ebuild'
+  static final String ERLANG_BUILD_LIB_DIR_NAME = 'ebuildLibDir'
+  static final String ERLANG_BUILD_APP_DIR_NAME = 'ebuildAppDir'
 
   void apply(Project project) {
     project.apply(plugin: 'base')
@@ -33,13 +35,20 @@ class ErlangPlugin implements Plugin<Project> {
   }
 
   private void configureProperties(Project project) {
-    project.extensions.add(
-      ERLANG_BUILD_DIR_NAME,
-      "${project.buildDir}/erlang")
+    def dir = new File(project.buildDir, 'erlang')
+    project.extensions.add(ERLANG_BUILD_DIR_NAME, dir)
+
+    def libDir = new File(dir, 'lib')
+    project.extensions.add(ERLANG_BUILD_LIB_DIR_NAME, libDir)
   }
 
   private void configureApplication(Project project) {
-    if(project.extensions.erlang.appFile.appFile) {
+    def ext = project.extensions.erlang
+    if(ext.appFile.appFile) {
+      def fqdn = "${ext.appFile.appName}-${ext.appFile.appVsn}"
+      def dir = new File(project.extensions.ebuildLibDir, fqdn)
+      project.extensions.add(ERLANG_BUILD_APP_DIR_NAME, dir)
+
       tasks.Application app = project.getTasks().create(
         ERLANG_BUILD_TASK_NAME,
         tasks.Application.class)

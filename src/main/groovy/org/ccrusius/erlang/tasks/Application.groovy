@@ -40,19 +40,13 @@ class Application extends DefaultTask {
 
   @Internal
   private
-  String getAppVsn() { project.extensions.erlang.appFile.appVsn }
+  File getOutputDir() { project.extensions.ebuildAppDir }
 
   @Internal
   private
   List getSourceFiles() {
     def all = new File(project.projectDir, "src").listFiles()
     all.findAll { FileUtils.getExtension(it) == '.erl' }
-  }
-
-  @Internal
-  private
-  File getOutputDir() {
-    project.file("${project.ebuildDir}/lib/${getAppName()}-${getAppVsn()}")
   }
 
   /**

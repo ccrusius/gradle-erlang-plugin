@@ -4,7 +4,8 @@
 
 This Gradle plugin provides basic Erlang building functionality for
 Gradle. It can not replace `rebar` yet (and maybe it will never be
-able to), but it is good enough for basic uses. One example is the
+able to), but it is good enough for compiling OTP applications, and
+generating releases. One example is the
 [gen_c_server](https://github.com/ccrusius/gen_c_server) project,
 which uses this to build both Erlang and C sources, and test the
 packages using Erlang's
@@ -18,7 +19,7 @@ off. The choices are: either one waits for `rebar` to add support for
 all other languages (Java, C/C++, etc) in all platforms (Windows,
 Unix, Mac, etc); or one adds Erlang support to a build system that
 already has all the other things taken care of. The second option is
-the obvious one.
+obviously the correct one.
 
 The next decision is to which build system to add Erlang support to,
 and there are not many around that can cover all the cases. Google's
@@ -28,8 +29,8 @@ one that ticks most boxes, and that's the one I went with.
 
 ## Basic Use
 
-1. Install this plugin
-2. Configure path to Erlang installation
+1. Install this plugin,
+2. Configure path to Erlang installation (if needed),
 3. `gradle ebuild`, or `gradle reltool`, etc.
 
 ## Specifying which Erlang to Use
@@ -45,30 +46,19 @@ installation in your `$PATH`.
 
 ## Compiling OTP Applications
 
-When the plugin is applied, it will create an `ebuild` task if there
-is a `.app` file in the `/ebin` directory. This task will compile an
-OTP application based on the sources in `/src`. Individual task for
-the application's `.beam` files will also be created.
+When the plugin is applied, it will create an `ebuild` task that
+builds the OTP application in the current directory and the ones found
+in sub-projects. The Erlang plugin will consider that an application
+needs to be built when it finds an `.app` file in the
+`$projectDir/ebin` directory. It will compile the application based on
+the sources in `/src`. Individual task for the application's `.beam`
+files will also be created.
 
 ## Producing Releases with Reltool
 
-If there is a `.config` file in the project root directory, the plugin
-will generate a `reltool` task that will generate a release according
-to the configuration file. You have to declare which applications
-are to be built for the release. This is a `build.gradle` example from
-one of the tests:
-```groovy
-plugins {
-  id 'org.ccrusius.erlang'
-}
-
-subprojects {
-  apply plugin: 'org.ccrusius.erlang'
-}
-
-reltool.dependsOn ':erlcount:ebuild'
-reltool.dependsOn ':ppool:ebuild'
-```
+If there is a reltool `.config` file in the project root directory,
+the plugin will create a `reltool` task that will generate a release
+according to that configuration file.
 
 ## Evaluating Erlang Code
 
@@ -78,11 +68,11 @@ using the `eval` function:
 def two = erlang.eval('io:format("~w",[1+1]).')
 ```
 (The `erlang.eval` function is a shortcut for
-`erlang.installation.getEscript().eval`.)
+`erlang.installation.escript.eval`.)
 
 ## Compiling Erlang Code
 
-The plugin provides an `Compile` task with a few parameters, settable via
+The plugin provides a `Compile` task with a few parameters, settable via
 the following functions:
 
 * `setSourceFile`: Specifies the path to the Erlang source file to be
@@ -99,3 +89,6 @@ task hello_world_beam(type: org.ccrusius.erlang.tasks.Compile) {
   setOutputDir 'ebin'
 }
 ```
+
+Normally one will not have to use this task, unless Erlang is being
+compiled outside of an OTP application structure.

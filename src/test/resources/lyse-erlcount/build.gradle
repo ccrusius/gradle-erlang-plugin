@@ -5,6 +5,3 @@ plugins {
 subprojects {
   apply plugin: 'org.ccrusius.erlang'
 }
-
-reltool.dependsOn ':erlcount:ebuild'
-reltool.dependsOn ':ppool:ebuild'

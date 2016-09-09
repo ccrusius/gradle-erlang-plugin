@@ -19,15 +19,18 @@ class Application extends DefaultTask {
   @TaskAction
   void build() {
     // All the work is done via sub-tasks.
-    logger.info("Building application ${getAppName()}")
+    logger.info("Building OTP application")
   }
 
   /**
    * Create the application sub-tasks.
    */
   void createSubTasks(Project project) {
-    createAppFileSubTasks(project)
-    createBeamSubTasks(project)
+    if(getAppFile()) {
+      createAppFileSubTasks(project)
+      createBeamSubTasks(project)
+    }
+    linkToParent(project)
   }
 
   @Internal
@@ -82,6 +85,15 @@ class Application extends DefaultTask {
       task.setSourceFile(it)
       task.setOutputDir(dir)
       dependsOn task
+    }
+  }
+
+  private
+  void linkToParent(Project project) {
+    if(project.parent) {
+      project.parent.tasks.withType(Application).collect {
+        it.dependsOn this
+      }
     }
   }
 }

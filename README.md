@@ -10,11 +10,27 @@ which uses this to build both Erlang and C sources, and test the
 packages using Erlang's
 [Common Test](http://erlang.org/doc/man/ct.html) framework.
 
+The main reason behind this plugin is the need to incorporate Erlang
+into multi-language build environments: while `rebar` does its job
+well with Erlang, as soon as you get out of it you start running into
+trouble. Native binaries from C/C++, for example, are hard to pull
+off. The choices are: either one waits for `rebar` to add support for
+all other languages (Java, C/C++, etc) in all platforms (Windows,
+Unix, Mac, etc); or one adds Erlang support to a build system that
+already has all the other things taken care of. The second option is
+the obvious one.
+
+The next decision is to which build system to add Erlang support to,
+and there are not many around that can cover all the cases. Google's
+Bazel does not have proper Windows support. CMake supports C well,
+but everything else is clunky. At the end of the day, Gradle is the
+one that ticks most boxes, and that's the one I went with.
+
 ## Basic Use
 
 1. Install this plugin
 2. Configure path to Erlang installation
-3. Compile and evaluate at will
+3. `gradle ebuild`
 
 ## Specifying which Erlang to Use
 

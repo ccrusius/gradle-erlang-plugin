@@ -30,7 +30,7 @@ one that ticks most boxes, and that's the one I went with.
 
 1. Install this plugin
 2. Configure path to Erlang installation
-3. `gradle ebuild`
+3. `gradle ebuild`, or `gradle reltool`, etc.
 
 ## Specifying which Erlang to Use
 
@@ -49,6 +49,26 @@ When the plugin is applied, it will create an `ebuild` task if there
 is a `.app` file in the `/ebin` directory. This task will compile an
 OTP application based on the sources in `/src`. Individual task for
 the application's `.beam` files will also be created.
+
+## Producing Releases with Reltool
+
+If there is a `.config` file in the project root directory, the plugin
+will generate a `reltool` task that will generate a release according
+to the configuration file. You have to declare which applications
+are to be built for the release. This is a `build.gradle` example from
+one of the tests:
+```groovy
+plugins {
+  id 'org.ccrusius.erlang'
+}
+
+subprojects {
+  apply plugin: 'org.ccrusius.erlang'
+}
+
+reltool.dependsOn ':erlcount:ebuild'
+reltool.dependsOn ':ppool:ebuild'
+```
 
 ## Evaluating Erlang Code
 

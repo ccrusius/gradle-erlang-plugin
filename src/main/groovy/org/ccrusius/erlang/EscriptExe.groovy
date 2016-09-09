@@ -24,11 +24,14 @@ class EscriptExe {
 
     def process = new ProcessBuilder(cmdline).start()
     process.waitFor()
+    def result = process.text.toString().trim()
+    project.logger.debug("EscriptExe.output:\n${result}")
+
     if(process.exitValue() != 0) {
+      project.logger.info("EscriptExe.output:\n${result}")
       throw new GradleException('escript failed.')
     }
-    def result = process.text.toString().trim()
-    project.logger.debug("EscriptExe.run -> ${result}")
+
     return result
   }
 
@@ -42,7 +45,12 @@ class EscriptExe {
 
     project.logger.debug("EscriptExe.eval:\n${contents}")
 
-    return run(script)
+    try {
+      return run(script)
+    } catch(all) {
+      project.logger.info("EscriptExe.script:\n${contents}")
+      throw all
+    }
   }
 
 }

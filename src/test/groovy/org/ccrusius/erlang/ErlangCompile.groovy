@@ -42,9 +42,8 @@ class ErlangCompileTest extends PluginTestBase {
 
     then:
 
-    result.task(':erlc').outcome == SUCCESS
-    new File(ebin.absolutePath, 'hello_world.beam').exists()
     result.task(':run').outcome == SUCCESS
+    new File(ebin.absolutePath, 'hello_world.beam').exists()
     result.output.contains("hello, world!")
   }
 }

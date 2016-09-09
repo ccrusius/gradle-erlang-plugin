@@ -49,16 +49,16 @@ installation in your `$PATH`.
 When the plugin is applied, it will create an `ebuild` task that
 builds the OTP application in the current directory and the ones found
 in sub-projects. The Erlang plugin will consider that an application
-needs to be built when it finds an `.app` file in the
-`$projectDir/ebin` directory. It will compile the application based on
-the sources in `/src`. Individual task for the application's `.beam`
+needs to be built when it finds an `.app` file in
+`$projectDir/ebin`. It will compile the application based on
+the sources in `$projectDir/src`. Individual tasks for the application's `.beam`
 files will also be created.
 
 ## Producing Releases with Reltool
 
 If there is a reltool `.config` file in the project root directory,
 the plugin will create a `reltool` task that will generate a release
-according to that configuration file.
+based on that configuration file.
 
 ## Evaluating Erlang Code
 
@@ -67,8 +67,8 @@ using the `eval` function:
 ```groovy
 def two = erlang.eval('io:format("~w",[1+1]).')
 ```
-(The `erlang.eval` function is a shortcut for
-`erlang.installation.escript.eval`.)
+The `erlang.eval` function is just a shortcut for
+`erlang.installation.escript.eval`.
 
 ## Compiling Erlang Code
 

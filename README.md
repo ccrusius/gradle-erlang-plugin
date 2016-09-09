@@ -2,10 +2,23 @@
 
 # Erlang Plugin for Gradle
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+**Table of Contents**
+
+- [Erlang Plugin for Gradle](#erlang-plugin-for-gradle)
+- [Basic Use](#basic-use)
+- [Specifying which Erlang to Use](#specifying-which-erlang-to-use)
+- [Compiling OTP Applications](#compiling-otp-applications)
+- [Producing Releases with Reltool](#producing-releases-with-reltool)
+- [Evaluating Erlang Code](#evaluating-erlang-code)
+- [Compiling Erlang Code](#compiling-erlang-code)
+
+<!-- markdown-toc end -->
+
 This Gradle plugin provides basic Erlang building functionality for
 Gradle. It can not replace `rebar` yet (and maybe it will never be
 able to), but it is good enough for compiling OTP applications, and
-generating releases. One example is the
+generating `reltool` releases. One example is the
 [gen_c_server](https://github.com/ccrusius/gen_c_server) project,
 which uses this to build both Erlang and C sources, and test the
 packages using Erlang's
@@ -27,13 +40,13 @@ Bazel does not have proper Windows support. CMake supports C well,
 but everything else is clunky. At the end of the day, Gradle is the
 one that ticks most boxes, and that's the one I went with.
 
-## Basic Use
+# Basic Use
 
 1. Install this plugin,
 2. Configure path to Erlang installation (if needed),
 3. `gradle ebuild`, or `gradle reltool`, etc.
 
-## Specifying which Erlang to Use
+# Specifying which Erlang to Use
 
 The Erlang installation to be used is given by the `installation`
 property of the `erlang` extension. You can switch installations by
@@ -44,7 +57,7 @@ erlang.installation.setRoot('/opt/erlang/r16b03-1')
 The default value for the root will work if you have an Erlang
 installation in your `$PATH`.
 
-## Compiling OTP Applications
+# Compiling OTP Applications
 
 When the plugin is applied, it will create an `ebuild` task that
 builds the OTP application in the current directory and the ones found
@@ -54,13 +67,13 @@ needs to be built when it finds an `.app` file in
 the sources in `$projectDir/src`. Individual tasks for the application's `.beam`
 files will also be created.
 
-## Producing Releases with Reltool
+# Producing Releases with Reltool
 
 If there is a reltool `.config` file in the project root directory,
 the plugin will create a `reltool` task that will generate a release
 based on that configuration file.
 
-## Evaluating Erlang Code
+# Evaluating Erlang Code
 
 You can get the output of an arbitrary Erlang expression evaluation by
 using the `eval` function:
@@ -70,7 +83,7 @@ def two = erlang.eval('io:format("~w",[1+1]).')
 The `erlang.eval` function is just a shortcut for
 `erlang.installation.escript.eval`.
 
-## Compiling Erlang Code
+# Compiling Erlang Code
 
 The plugin provides a `Compile` task with a few parameters, settable via
 the following functions:

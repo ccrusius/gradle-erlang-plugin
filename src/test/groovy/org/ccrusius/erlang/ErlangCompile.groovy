@@ -15,7 +15,7 @@ class ErlangCompileTest extends PluginTestBase {
     erl << """
       -module(hello_world).
       -export([hello_world/0]).
-      hello_world() -> io:format(\"hello, world!~n\").
+      hello_world() -> io:format(\"~s~n\", [ ?PRINT_ME ]).
     """
 
     emptyBuildFile() << """
@@ -24,6 +24,7 @@ class ErlangCompileTest extends PluginTestBase {
       }
 
       task erlc(type: org.ccrusius.erlang.tasks.Compile) {
+        setArguments '-DPRINT_ME="hello, world!"'
         setSourceFile '${utils.FileUtils.getAbsolutePath(erl)}'
         setOutputDir '${utils.FileUtils.getAbsolutePath(ebin)}'
       }

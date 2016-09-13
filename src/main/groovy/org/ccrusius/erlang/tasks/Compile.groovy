@@ -1,6 +1,7 @@
 package org.ccrusius.erlang.tasks
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
@@ -55,9 +56,27 @@ class Compile extends DefaultTask {
 
   private Object outputFile
 
+  @Input
+  List<String> getArguments() {
+    return args
+  }
+
+  void setArguments(String... args) {
+    setArguments(Arrays.asList(args));
+  }
+
+  void setArguments(List<String> args) {
+    this.args.clear()
+    this.args.addAll(args)
+  }
+
+  private final List<String> args = new ArrayList<String>()
+
   @TaskAction
   void compile() {
-    project.extensions.erlang.installation.getErlc().run(
+    project.extensions.erlang.installation.getErlc()
+    .withArguments(args)
+    .run(
       getSourceFile(),
       getOutputDir())
   }

@@ -13,9 +13,29 @@ class ErlcExe {
 
   private final String exe
 
+  private final List<String> args = new ArrayList<String>()
+
   ErlcExe(Project project, String exe) {
     this.project = project
     this.exe = exe
+  }
+
+  ErlcExe withArguments(String... args) {
+    return withArguments(Arrays.asList(args));
+  }
+
+  ErlcExe withArguments(List<String> args) {
+    this.args.clear()
+    return addArguments(args)
+  }
+
+  ErlcExe addArguments(String... args) {
+    return addArguments(Arrays.asList(args))
+  }
+
+  ErlcExe addArguments(List<String> args) {
+    this.args.addAll(args)
+    return this
   }
 
   void run(File source, File outDir) {
@@ -25,8 +45,7 @@ class ErlcExe {
 
     outDir.mkdirs()
 
-    def command = [
-      exe,
+    def command = [ exe ] + this.args + [
       "-o", utils.FileUtils.getUnixPath(outDir.toString() + "/"),
       source.toString()
     ]

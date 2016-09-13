@@ -94,12 +94,15 @@ the following functions:
   be placed. The name of the file will be the same as that of the
   source file, with the appropriate extension. The default is to place
   it in the same directory as the source file.
+* `setArguments`: Specifies extra arguments to pass to the Erlang
+  compiler.
 
 Example:
 ```groovy
 task hello_world_beam(type: org.ccrusius.erlang.tasks.Compile) {
   setSourceFile 'src/hello_world.erl'
   setOutputDir 'ebin'
+  setArguments '-DMY_MACRO'
 }
 ```
 

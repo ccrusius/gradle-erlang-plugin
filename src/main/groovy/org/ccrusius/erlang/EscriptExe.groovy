@@ -19,10 +19,13 @@ class EscriptExe {
   }
 
   String run(File script) {
-    def cmdline = [ exe, script.absolutePath ]
+    def cmdline = [ exe, script.name ]
     project.logger.debug("EscriptExe.run(${cmdline.join(' ')})")
 
-    def process = new ProcessBuilder(cmdline).start()
+    def process = new ProcessBuilder(cmdline)
+      .redirectErrorStream(true)
+      .directory(script.parentFile)
+      .start()
     process.waitFor()
     def result = process.text.toString().trim()
     project.logger.debug("EscriptExe.output:\n${result}")

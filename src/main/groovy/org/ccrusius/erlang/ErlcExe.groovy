@@ -47,11 +47,14 @@ class ErlcExe {
 
     def command = [ exe ] + this.args + [
       "-o", utils.FileUtils.getUnixPath(outDir.toString() + "/"),
-      source.toString()
+      source.name
     ]
 
     project.logger.debug("ErlcExe: ${command.join(' ')}")
-    def process = new ProcessBuilder(command).start()
+    def process = new ProcessBuilder(command)
+      .redirectErrorStream(true)
+      .directory(source.parentFile)
+      .start()
     process.inputStream.eachLine { println it }
     process.waitFor()
     if(process.exitValue() != 0) {

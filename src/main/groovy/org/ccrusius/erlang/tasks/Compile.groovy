@@ -44,12 +44,28 @@ class Compile extends DefaultTask {
 
   private Object outputDir
 
+  /*
+   * What to rename the file to, before compiling.
+   * This is advanced usage, intended for renaming modules.
+   */
+  @Input
+  File getNewName() {
+    if(newName == null) { return getSourceFile() }
+    project.file(newName)
+  }
+
+  void setNewName(String newName) {
+    this.newName = newName
+  }
+
+  private Object newName = null
+
   @OutputFile
   File getOutputFile() {
     if(outputFile == null) {
       outputFile = new File(
         getOutputDir(),
-        FileUtils.getCompiledName(getSourceFile()))
+        FileUtils.getCompiledName(getNewName()))
     }
     project.file(outputFile)
   }
@@ -72,12 +88,26 @@ class Compile extends DefaultTask {
 
   private final List<String> args = new ArrayList<String>()
 
+  /*
+   * The task action.
+   */
   @TaskAction
   void compile() {
-    project.extensions.erlang.installation.getErlc()
-    .withArguments(args)
-    .run(
-      getSourceFile(),
-      getOutputDir())
+    def source = getSourceFile()
+    def newSource = null
+    if(this.newName) {
+      newSource = new File(source.parent, getNewName().name)
+      assert !newSource.exists()
+      newSource << source.text
+    }
+
+    try {
+      project.extensions.erlang.installation.getErlc()
+      .withArguments(args)
+      .run(newSource ? newSource : source, getOutputDir())
+    }
+    finally {
+      if(newSource) { newSource.delete() }
+    }
   }
 }

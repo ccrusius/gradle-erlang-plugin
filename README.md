@@ -12,6 +12,7 @@
 - [Producing Releases with Reltool](#producing-releases-with-reltool)
 - [Evaluating Erlang Code](#evaluating-erlang-code)
 - [Compiling Erlang Code](#compiling-erlang-code)
+    - [Advanced Compilation Properties](#advanced-compilation-properties)
 
 <!-- markdown-toc end -->
 
@@ -108,3 +109,11 @@ task hello_world_beam(type: org.ccrusius.erlang.tasks.Compile) {
 
 Normally one will not have to use this task, unless Erlang is being
 compiled outside of an OTP application structure.
+
+## Advanced Compilation Properties
+
+The vast majority of the time, you will not need any of these.
+
+* `setNewName`: Rename the file before compiling. This is useful for
+  automated module renaming.
+

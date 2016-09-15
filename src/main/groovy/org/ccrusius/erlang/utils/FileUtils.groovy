@@ -12,18 +12,39 @@ class FileUtils {
     getUnixPath(file.absolutePath)
   }
 
+  /**
+   * Split a file name into basic components.
+   *
+   * @returns A tuple (name, path, extension).
+   */
+  static Tuple parse(File file) {
+    String name = file.path
+
+    String path = null
+    def idx = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'))
+    if(idx > 0) {
+      path = name.substring(0, idx+1)
+      name = name.substring(idx+1)
+    }
+
+    String extension = null
+    idx = name.lastIndexOf('.')
+    if(idx > 0) {
+      extension = name.substring(idx)
+      name = name.substring(0, idx)
+    }
+
+    return new Tuple(name, path, extension)
+  }
+
   static String getExtension(File file) {
-    def name = file.name
-    def idx = name.lastIndexOf('.')
-    if(idx > 0) { return name.substring(idx) }
-    null
+    def (_name, _path, ext) = parse(file)
+    return ext
   }
 
   static String getBaseName(File file) {
-    def name = file.name
-    def idx = name.lastIndexOf('.')
-    if(idx > 0) { return name.substring(0,idx) }
-    name
+    def (name, _path, _ext) = parse(file)
+    return name
   }
 
   static String getCompiledExtension(File file) {

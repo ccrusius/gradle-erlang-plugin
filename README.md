@@ -69,6 +69,12 @@ needs to be built when it finds an `.app` file in
 the sources in `$projectDir/src`. Individual tasks for the application's `.beam`
 files will also be created.
 
+The app file does not need to have `vsn` explicitly specified. If it
+is not, the plugin will try to get the version from `project.version`
+(which is filled in, for example, by the
+[git versioning plugin](https://plugins.gradle.org/plugin/com.zoltu.git-versioning))
+and, if it doesn't find it there, it tries `project.ext.version`.
+
 # Producing Releases with Reltool
 
 If there is a reltool `.config` file in the project root directory,

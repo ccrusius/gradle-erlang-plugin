@@ -1,3 +1,9 @@
 plugins {
-  id 'org.ccrusius.erlang'
+  id 'org.ccrusius.erlang' apply false
 }
+
+ext {
+  version = "1.2.3"
+}
+
+apply plugin: 'org.ccrusius.erlang'

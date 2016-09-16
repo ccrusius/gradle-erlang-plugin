@@ -3,7 +3,6 @@ package org.ccrusius.erlang.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
@@ -58,13 +57,14 @@ class Application extends DefaultTask {
   private
   void createAppFileSubTasks(Project project) {
     def dir = new File(getOutputDir(), 'ebin')
+    def app = getAppFile()
+    def out = new File(dir, app.name)
 
-    def task = project.getTasks().create(
-      getAppFile().name,
-      Copy.class)
+    def task = project.getTasks().create(app.name, DefaultTask.class)
     task.setDescription("Generate application '.app' file")
-    task.from(getAppFile())
-    task.into(dir)
+    task.inputs.file(app)
+    task.outputs.file(out)
+    task << { project.extensions.erlang.appFile.write(out) }
     dependsOn task
   }
 

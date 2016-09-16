@@ -19,6 +19,11 @@ class AppFile {
     this.cache = new Cache()
   }
 
+  /// -------------------------------------------------------------------------
+  ///
+  /// The source application file
+  ///
+  /// -------------------------------------------------------------------------
   File getAppFile() {
     if(cache.appFile) return project.file(cache.appFile)
 
@@ -61,6 +66,37 @@ class AppFile {
       {ok,[{application,_,Props}]}=file:consult(\"${appFile}\"),
       io:format("~s",[proplists:get_value(vsn, Props)]).
     """)
+    if(cache.appVsn == 'undefined') {
+      cache.appVsn = project.version
+      if(cache.appVsn == 'unspecified') {
+        cache.appVsn = project.ext.version
+      }
+    }
     return cache.appVsn
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// Write the app file in a normalized version. Fills in values that are
+  /// not present.
+  ///
+  /// -------------------------------------------------------------------------
+  void write(File file) {
+    String vsn = getAppVsn()
+    String appFile = FileUtils.getAbsolutePath(getAppFile())
+    def escript = project.extensions.erlang.installation.getEscript()
+
+    if(file.exists()) { assert file.delete() }
+    file.parentFile.mkdirs()
+
+    escript.eval("""
+      {ok,[{application,AppName,Props}]}=file:consult(\"${appFile}\"),
+      SortedProps = lists:keysort(1, Props),
+      PropsWithVsn = lists:keymerge(1, [{vsn, \"${vsn}\"}], SortedProps),
+      ok = file:write_file(\"${FileUtils.getAbsolutePath(file)}\",
+                 io_lib:fwrite(\"~p.\", [{application,AppName,PropsWithVsn}])).
+    """)
+
+    assert file.exists()
   }
 }

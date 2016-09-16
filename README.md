@@ -12,14 +12,15 @@
 - [Producing Releases with Reltool](#producing-releases-with-reltool)
 - [Evaluating Erlang Code](#evaluating-erlang-code)
 - [Compiling Erlang Code](#compiling-erlang-code)
-    - [Advanced Compilation Properties](#advanced-compilation-properties)
+    - [Advanced: Manipulating the Source File Before Compiling](#advanced-manipulating-the-source-file-before-compiling)
 
 <!-- markdown-toc end -->
 
 This Gradle plugin provides basic Erlang building functionality for
 Gradle. It can not replace `rebar` yet (and maybe it will never be
 able to), but it is good enough for compiling OTP applications, and
-generating `reltool` releases. One example is the
+generating `reltool` releases. It also supports "module renaming,"
+something `rebar` does not. One plugin usage example is the
 [gen_c_server](https://github.com/ccrusius/gen_c_server) project,
 which uses this to build both Erlang and C sources, and test the
 packages using Erlang's
@@ -110,10 +111,49 @@ task hello_world_beam(type: org.ccrusius.erlang.tasks.Compile) {
 Normally one will not have to use this task, unless Erlang is being
 compiled outside of an OTP application structure.
 
-## Advanced Compilation Properties
+## Advanced: Manipulating the Source File Before Compiling
 
-The vast majority of the time, you will not need any of these.
+Suppose you want to compile an application, which includes some other
+applications or modules. Unfortunately, the versions for those extra
+modules conflict with what is included by other applications. What do
+you do?
 
-* `setNewName`: Rename the file before compiling. This is useful for
-  automated module renaming.
+The standard Erlang answer to this is "rename the dependencies to
+something that does not clash with anything else." This is hackish, to
+say the least, but it is the only solution. This Gradle plugin allows
+you to incorporate that hack into the build system with the following
+compilation properties:
 
+* `setNewName`: Specify a new name for the source file. The original
+  source file will be copied to a file with the given name, in the
+  same directory. After compilation, whether things succeed or not,
+  the new file will be removed.
+* `addReplacement`: This takes in two strings, a regular expression
+  and a replacement string. Those will be applied to the new file.
+
+An example should clarify things. Suppose you have the following
+module in a file called `src/my_module.erl`:
+```erlang
+-module(my_module).
+-export([my_function/0]).
+
+my_function() -> 1.
+```
+Suppose you want to rename the module to `new_module`, and the
+function to `new_function`. This Gradle snippet does it:
+```groovy
+task new_module(type: org.ccrusius.gradle.tasks.Compile) {
+  setSourceFile 'src/my_module.erl'
+  setNewName 'new_module.erl'
+  addReplacement 'my_module', 'new_module'
+  addReplacement 'my_function', 'new_function'
+}
+```
+The task will now write a `src/new_module.erl` file with the contents
+```erlang
+-module(new_module).
+-export([new_function/0]).
+
+new_function() -> 1.
+```
+and compile it. Hackish module rename accomplished.

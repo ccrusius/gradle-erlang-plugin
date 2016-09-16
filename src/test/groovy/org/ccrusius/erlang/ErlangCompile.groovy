@@ -60,9 +60,9 @@ class ErlangCompileTest extends PluginTestBase {
     given:
 
     erl << """
-      -module(another_name).
-      -export([print/0]).
-      print() -> io:format(\"~s~n\", [ ?PRINT_ME ]).
+      -module(please_replace_me).
+      -export([function_name/0]).
+      function_name() -> io:format(\"~s~n\", [ ?PRINT_ME ]).
     """
 
     emptyBuildFile() << """
@@ -73,6 +73,8 @@ class ErlangCompileTest extends PluginTestBase {
       task erlc(type: org.ccrusius.erlang.tasks.Compile) {
         setArguments '-DPRINT_ME="success!"'
         setNewName 'another_name.erl'
+        addReplacement ' *-module.please_replace_me..', '-module(another_name).'
+        addReplacement 'function_name', 'print'
         setSourceFile '${utils.FileUtils.getAbsolutePath(erl)}'
         setOutputDir '${utils.FileUtils.getAbsolutePath(ebin)}'
       }

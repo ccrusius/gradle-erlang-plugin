@@ -10,14 +10,14 @@ import org.gradle.api.tasks.ParallelizableTask
 
 import org.ccrusius.erlang.utils.FileUtils
 
-/**
- * Compile an Erlang source using 'erlc'.
- *
- * Most of the time, one will be compiling an '.erl' file into a
- * '.beam', but this task (should) support anything 'erlc' does.
- *
- * @author Cesar Crusius
- */
+///
+/// Compile an Erlang source using 'erlc'.
+///
+/// Most of the time, one will be compiling an '.erl' file into a
+/// '.beam', but this task (should) support anything 'erlc' does.
+///
+/// @author Cesar Crusius
+///
 @ParallelizableTask
 class Compile extends DefaultTask {
 
@@ -44,10 +44,12 @@ class Compile extends DefaultTask {
 
   private Object outputDir
 
-  /*
-   * What to rename the file to, before compiling.
-   * This is advanced usage, intended for renaming modules.
-   */
+  /// -------------------------------------------------------------------------
+  ///
+  /// What to rename the file to, before compiling.
+  /// This is advanced usage, intended for renaming modules.
+  ///
+  /// -------------------------------------------------------------------------
   @Input
   String getNewName() {
     if(newName == null) { return getSourceFile().name }
@@ -60,16 +62,16 @@ class Compile extends DefaultTask {
 
   private Object newName = null
 
-  /* -----------------------------------------------------------------------
-   *
-   * The replacement pairs.
-   *
-   * When copying files for compilation, the user can also transform
-   * their text by specifying (regex, repl) pairs. Those are stored in
-   * a list of Tuple2, which Gradle does not like as @Inputs. Splitting
-   * the tuples into two lists for Gradle seems to work.
-   *
-   * ----------------------------------------------------------------------- */
+  /// -------------------------------------------------------------------------
+  ///
+  /// The replacement pairs.
+  ///
+  /// When copying files for compilation, the user can also transform
+  /// their text by specifying (regex, repl) pairs. Those are stored in
+  /// a list of Tuple2, which Gradle does not like as @Inputs. Splitting
+  /// the tuples into two lists for Gradle seems to work.
+  ///
+  /// -------------------------------------------------------------------------
   @Input
   List<String> getReplacementRegexs() {
     replacements.collect {
@@ -129,11 +131,11 @@ class Compile extends DefaultTask {
 
   private final List<String> args = new ArrayList<String>()
 
-  /* -----------------------------------------------------------------------
-   *
-   * The task action.
-   *
-   * ----------------------------------------------------------------------- */
+  /// -------------------------------------------------------------------------
+  ///
+  /// The task action.
+  ///
+  /// -------------------------------------------------------------------------
   @TaskAction
   void compile() {
     def source = getSourceFile()

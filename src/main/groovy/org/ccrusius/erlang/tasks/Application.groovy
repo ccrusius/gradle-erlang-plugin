@@ -4,6 +4,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
 
@@ -85,6 +88,14 @@ class Application extends DefaultTask {
 
   private DefaultTask appFileTask = null
 
+  @Optional
+  @OutputFile
+  File getOutputAppFile() {
+    if(appFileTask) {
+      appFileTask.outputs.files.singleFile
+    }
+  }
+
   /// -------------------------------------------------------------------------
   ///
   /// Create the Erlang compilation tasks.
@@ -109,6 +120,16 @@ class Application extends DefaultTask {
   }
 
   private final List<DefaultTask> beamTasks = new ArrayList<DefaultTask>()
+
+  @Optional
+  @OutputFiles
+  List<File> getOutputBeams() {
+    if(beamTasks.size() > 0) {
+      beamTasks.collect {
+        it.outputFile
+      }
+    }
+  }
 
   /// -------------------------------------------------------------------------
   ///

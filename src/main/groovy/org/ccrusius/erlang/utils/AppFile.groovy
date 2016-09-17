@@ -91,10 +91,13 @@ class AppFile {
 
     escript.eval("""
       {ok,[{application,AppName,Props}]}=file:consult(\"${appFile}\"),
-      SortedProps = lists:keysort(1, Props),
-      PropsWithVsn = lists:keymerge(1, [{vsn, \"${vsn}\"}], SortedProps),
+      SortedProps = orddict:from_list(Props),
+      PropsWithVsn = orddict:merge(fun(K,V1,V2) -> V1 end,
+                                   [{vsn, \"${vsn}\"}],
+                                   SortedProps),
       ok = file:write_file(\"${FileUtils.getAbsolutePath(file)}\",
-                 io_lib:fwrite(\"~p.\", [{application,AppName,PropsWithVsn}])).
+                 io_lib:fwrite(\"~p.~n\",
+                               [{application,AppName,PropsWithVsn}])).
     """)
 
     assert file.exists()

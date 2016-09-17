@@ -81,5 +81,4 @@ class PluginTestBase extends Specification {
              .toURI())
     .parentFile
   }
-
 }

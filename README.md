@@ -8,7 +8,7 @@
 - [Erlang Plugin for Gradle](#erlang-plugin-for-gradle)
 - [Basic Use](#basic-use)
 - [Specifying which Erlang to Use](#specifying-which-erlang-to-use)
-- [Compiling OTP Applications](#compiling-otp-applications)
+- [Compiling and Installing OTP Applications](#compiling-and-installing-otp-applications)
 - [Producing Releases with Reltool](#producing-releases-with-reltool)
 - [Evaluating Erlang Code](#evaluating-erlang-code)
 - [Compiling Erlang Code](#compiling-erlang-code)
@@ -59,7 +59,7 @@ erlang.installation.setRoot('/opt/erlang/r16b03-1')
 The default value for the root will work if you have an Erlang
 installation in your `$PATH`.
 
-# Compiling OTP Applications
+# Compiling and Installing OTP Applications
 
 When the plugin is applied, it will create an `ebuild` task that
 builds the OTP application in the current directory and the ones found
@@ -74,6 +74,12 @@ is not, the plugin will try to get the version from `project.version`
 (which is filled in, for example, by the
 [git versioning plugin](https://plugins.gradle.org/plugin/com.zoltu.git-versioning))
 and, if it doesn't find it there, it tries `project.ext.version`.
+
+For each application, the plugin will create a
+`installNameApplication` task, where `Name` is the application name
+capitalized. This task will install the application in an
+appropriately named directory inside
+`${project.buildDir}/install/erlang-lib`.
 
 # Producing Releases with Reltool
 

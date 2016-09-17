@@ -47,6 +47,11 @@ class AppFile {
     cache.appFile = appFile
   }
 
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application name, as parsed from the app file
+  ///
+  /// -------------------------------------------------------------------------
   String getAppName() {
     if(cache.appName) { return cache.appName }
     def appFile = FileUtils.getAbsolutePath(getAppFile())
@@ -58,6 +63,12 @@ class AppFile {
     return cache.appName
   }
 
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application version, either from the app file or from
+  /// project properties.
+  ///
+  /// -------------------------------------------------------------------------
   String getAppVsn() {
     if(cache.appVsn) { return cache.appVsn }
     def appFile = FileUtils.getAbsolutePath(getAppFile())
@@ -73,6 +84,15 @@ class AppFile {
       }
     }
     return cache.appVsn
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application directory name
+  ///
+  /// -------------------------------------------------------------------------
+  String getAppDirName() {
+    "${getAppName()}-${getAppVsn()}"
   }
 
   /// -------------------------------------------------------------------------

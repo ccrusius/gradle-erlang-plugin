@@ -30,10 +30,11 @@ class ErlangApplicationTest extends PluginTestBase {
     setTestBuildDir(buildDir)
 
     when:
-    def result = runGradleTask('ebuild')
+    def ppool = runGradleTask(':ppool:installPpoolApplication')
+    def erlcount = runGradleTask(':erlcount:installErlcountApplication')
 
     then:
-    result.task(':ppool:ebuild').outcome == SUCCESS
-    result.task(':erlcount:ebuild').outcome == SUCCESS
+    ppool.task(':ppool:installPpoolApplication').outcome == SUCCESS
+    erlcount.task(':erlcount:installErlcountApplication').outcome == SUCCESS
   }
 }

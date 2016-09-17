@@ -5,3 +5,8 @@ plugins {
 subprojects {
   apply plugin: 'org.ccrusius.erlang'
 }
+
+task install
+
+install.dependsOn ':ppool:installPpoolApplication'
+install.dependsOn ':erlcount:installErlcountApplication'

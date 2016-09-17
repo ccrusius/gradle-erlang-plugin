@@ -16,8 +16,13 @@ class ErlangInstallation {
   }
 
   File getRoot() {
-    if(this.root == null) { return null }
-    project.file(root)
+    if(this.root) {
+      return project.file(root)
+    }
+
+    if(project.hasProperty('erlangRoot')) {
+      return project.file(project.erlangRoot)
+    }
   }
 
   void setRoot(Object r) {
@@ -31,7 +36,9 @@ class ErlangInstallation {
     def r = getRoot()
     if(r == null) { return null }
     def candidates = r.listFiles().findAll { it.name.startsWith('erts-') }
-    if(candidates.size() == 0) { return null }
+    if(candidates.size() == 0) {
+      throw new GradleException("Erlang root '$r' does not contain an ERTS folder!")
+    }
     if(candidates.size() > 1) {
       throw new GradleException('More than one ERTS in the Erlang root!')
     }

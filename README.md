@@ -51,13 +51,21 @@ one that ticks most boxes, and that's the one I went with.
 # Specifying which Erlang to Use
 
 The Erlang installation to be used is given by the `installation`
-property of the `erlang` extension. You can switch installations by
-calling the `setRoot` method, as for example in
+property of the `erlang` extension. The default uses whatever you have
+on your `$PATH`. If you need to specify the path to an installation,
+you need to set the `erlangRoot` project property before applying the
+plugin. Example:
 ```groovy
-erlang.installation.setRoot('/opt/erlang/r16b03-1')
+plugins {
+  id 'org.ccrusius.erlang' apply false
+}
+
+ext {
+  erlangRoot = '/opt/erlang/r16b03-1'
+}
+
+apply plugin: 'org.ccrusius.erlang'
 ```
-The default value for the root will work if you have an Erlang
-installation in your `$PATH`.
 
 # Compiling and Installing OTP Applications
 

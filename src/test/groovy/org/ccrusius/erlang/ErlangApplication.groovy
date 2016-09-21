@@ -15,10 +15,10 @@ class ErlangApplicationTest extends PluginTestBase {
     setTestBuildDir(buildDir)
 
     when:
-    def result = runGradleTask('ebuild')
+    def result = runGradleTask('installHello_worldApplication')
 
     then:
-    result.task(':ebuild').outcome == SUCCESS
+    result.task(':installHello_worldApplication').outcome == SUCCESS
   }
 
   def "erlcount (From 'Learn Yourself Some Erlang for Great Good')" () {

@@ -75,6 +75,11 @@ class PluginTestBase extends Specification {
     gradle.withArguments(gradle.getArguments() + task).build()
   }
 
+  BuildResult showAllGradleTasks() {
+    def gradle = getGradle()
+    gradle.withArguments(gradle.getArguments() + ['tasks', '--all']).build()
+  }
+
   File getResourcesDir() {
     new File(getClass().classLoader
              .getResource('README.md')

@@ -144,7 +144,7 @@ class Application extends DefaultTask {
 
     def install = project.tasks.create(
       "install${app.appName.capitalize()}Application",
-      DefaultTask.class)
+      ApplicationInstall.class)
 
     def friendly = FileUtils.getAbsolutePath(dir)
     def pdir = FileUtils.getAbsolutePath(project.projectDir)
@@ -157,25 +157,14 @@ class Application extends DefaultTask {
     ///
     install.dependsOn this.appFileTask
     def srcApp = this.appFileTask.outputs.files.singleFile
-    install.inputs.file(srcApp)
-    install.outputs.file(new File(ebin, srcApp.name))
-    install << { project.copy {
-        from srcApp
-        into ebin
-      }}
+    install.setInputAppFile(srcApp)
     ///
     /// Copy the .beam files
     ///
-    install.outputs.dir(ebin)
     beamTasks.each {
       install.dependsOn it
       def out = it.outputFile
-      install.inputs.file(out)
-      install.outputs.file(new File(ebin, out.name))
-      install << { project.copy {
-          from out
-          into ebin
-        }}
+      install.addInputBeams(out)
     }
   }
 

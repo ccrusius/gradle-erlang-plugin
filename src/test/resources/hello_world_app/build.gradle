@@ -7,3 +7,9 @@ ext {
 }
 
 apply plugin: 'org.ccrusius.erlang'
+
+import org.ccrusius.erlang.tasks.ApplicationInstall
+
+tasks.withType(ApplicationInstall) {
+  setInstallBaseDir(new File(project.buildDir, 'custom-install-dir'))
+}

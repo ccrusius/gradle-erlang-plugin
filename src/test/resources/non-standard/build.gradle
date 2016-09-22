@@ -6,12 +6,27 @@ import org.ccrusius.erlang.ApplicationInfo
 import org.ccrusius.erlang.tasks.Application
 
 ApplicationInfo appInfo = new ApplicationInfo(project)
-appInfo.setVersion('9.8.7')
-appInfo.setName('customized')
-appInfo.setSourceDir('subdir')
+appInfo.with {
+  setVersion('9.8.7')
+  setName('customized')
+  setSourceDir('subdir')
+}
 
 task nonstandard(type: Application) {
   setAppInfo(appInfo)
   setInstallDir(new File(project.buildDir, 'customized-install-dir'))
+  createSubTasks(project)
+}
+
+ApplicationInfo appInfo2 = new ApplicationInfo(project)
+appInfo2.with {
+  setName('customized2')
+  setDirName('my-dir-name')
+  setSourceDir('subdir')
+}
+
+task nonstandard2(type: Application) {
+  setAppInfo(appInfo2)
+  setInstallDir(new File(project.buildDir, 'customized-install-dir2'))
   createSubTasks(project)
 }

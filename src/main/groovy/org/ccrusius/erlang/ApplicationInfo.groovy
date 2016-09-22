@@ -126,9 +126,16 @@ class ApplicationInfo {
   /// The application directory name
   ///
   /// -------------------------------------------------------------------------
+
   String getDirName() {
-    "${getName()}-${getVersion()}"
+    dirName ? dirName : "${getName()}-${getVersion()}"
   }
+
+  void setDirName(String dirName) {
+    this.dirName = dirName
+  }
+
+  private String dirName = null
 
   /// -------------------------------------------------------------------------
   ///

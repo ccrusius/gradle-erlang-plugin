@@ -1,5 +1,6 @@
 package org.ccrusius.erlang.tasks
 
+import org.gradle.api.Task
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -100,15 +101,20 @@ class Application extends DefaultTask {
     def file = app.resourceFile
     def out = new File(dir, "${app.name}.app")
 
-    this.appFileTask = project.getTasks().create(file.name, DefaultTask.class)
-    this.appFileTask.setDescription("Generate application '.app' file")
-    this.appFileTask.inputs.file(file)
-    this.appFileTask.outputs.file(out)
-    this.appFileTask << { app.write(out) }
+    this.appFileTask = project.tasks.findByPath(file.name)
+    if(this.appFileTask == null) {
+      this.appFileTask = project.tasks.create(file.name, DefaultTask.class)
+      this.appFileTask.with {
+        setDescription("Generate application '.app' file")
+        inputs.file(file)
+        outputs.file(out)
+        doLast { app.write(out) }
+      }
+    }
     dependsOn this.appFileTask
   }
 
-  private DefaultTask appFileTask = null
+  private Task appFileTask = null
 
   @Optional
   @OutputFile
@@ -130,18 +136,20 @@ class Application extends DefaultTask {
     def dir = new File(getOutputDir(), 'ebin')
 
     beamTasks.addAll(getSourceFiles().collect {
-                       def task = project.getTasks().create(
-                         FileUtils.getCompiledName(it),
-                         Compile.class)
-                       task.setDescription("Compile ${it.name}")
-                       task.setSourceFile(it)
-                       task.setOutputDir(dir)
+                       def name = FileUtils.getCompiledName(it)
+                       def task = project.tasks.findByPath(name)
+                       if(task == null) {
+                         task = project.getTasks().create(name,Compile.class)
+                         task.setDescription("Compile ${it.name}")
+                         task.setSourceFile(it)
+                         task.setOutputDir(dir)
+                       }
                        dependsOn task
                        task
                      })
   }
 
-  private final List<DefaultTask> beamTasks = new ArrayList<DefaultTask>()
+  private final List<Task> beamTasks = new ArrayList<DefaultTask>()
 
   @Optional
   @OutputFiles

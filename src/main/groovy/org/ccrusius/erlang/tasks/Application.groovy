@@ -10,8 +10,8 @@ import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
 
+import org.ccrusius.erlang.ApplicationInfo
 import org.ccrusius.erlang.utils.FileUtils
-import org.ccrusius.erlang.utils.AppFile
 
 /**
  * @author Cesar Crusius
@@ -29,7 +29,7 @@ class Application extends DefaultTask {
    * Create the application sub-tasks.
    */
   void createSubTasks(Project project) {
-    if(getAppFileFile()) {
+    if(getResourceFile()) {
       createAppFileSubTasks(project)
       createBeamSubTasks(project)
       createInstallTask(project)
@@ -39,15 +39,15 @@ class Application extends DefaultTask {
 
   @Internal
   private
-  AppFile getAppFile() { project.extensions.erlang.appFile }
+  ApplicationInfo getAppInfo() { project.extensions.erlang.appInfo }
 
   @Internal
   private
-  File getAppFileFile() { getAppFile().appFile }
+  File getResourceFile() { getAppInfo().resourceFile }
 
   @Internal
   private
-  String getAppName() { getAppFile().appName }
+  String getAppName() { getAppInfo().name }
 
   @Internal
   private
@@ -55,8 +55,8 @@ class Application extends DefaultTask {
 
   @Internal
   File getInstallDir() {
-    def app = getAppFile()
-    new File("${project.buildDir}/install/erlang-lib/${app.appDirName}")
+    def app = getAppInfo()
+    new File("${project.buildDir}/install/erlang-lib/${app.dirName}")
   }
 
   @Internal
@@ -73,10 +73,10 @@ class Application extends DefaultTask {
   /// -------------------------------------------------------------------------
   private
   void createAppFileSubTasks(Project project) {
-    def app = getAppFile()
+    def app = getAppInfo()
     def dir = new File(getOutputDir(), 'ebin')
-    def file = app.appFile
-    def out = new File(dir, "${app.appName}.app")
+    def file = app.resourceFile
+    def out = new File(dir, "${app.name}.app")
 
     this.appFileTask = project.getTasks().create(file.name, DefaultTask.class)
     this.appFileTask.setDescription("Generate application '.app' file")
@@ -136,14 +136,15 @@ class Application extends DefaultTask {
   /// Create the application installation task.
   ///
   /// -------------------------------------------------------------------------
+
   private
   void createInstallTask(Project project) {
-    def app = getAppFile()
+    def app = getAppInfo()
     def dir = getInstallDir()
     def ebin = new File(dir, 'ebin')
 
     def install = project.tasks.create(
-      "install${app.appName.capitalize()}Application",
+      "install${app.name.capitalize()}Application",
       ApplicationInstall.class)
 
     def friendly = FileUtils.getAbsolutePath(dir)

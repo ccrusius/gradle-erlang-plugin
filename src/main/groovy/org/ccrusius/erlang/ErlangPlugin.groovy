@@ -52,8 +52,8 @@ class ErlangPlugin implements Plugin<Project> {
   private void configureApplication(Project project) {
     def ext = project.extensions.erlang
 
-    if(ext.appFile.appFile) {
-      def fqdn = "${ext.appFile.appName}-${ext.appFile.appVsn}"
+    if(ext.appInfo.resourceFile) {
+      def fqdn = ext.appInfo.dirName
       def dir = new File(project.extensions.ebuildLibDir, fqdn)
       project.extensions.add(ERLANG_BUILD_APP_DIR_NAME, dir)
     }
@@ -63,8 +63,8 @@ class ErlangPlugin implements Plugin<Project> {
       tasks.Application.class)
     app.createSubTasks(project)
 
-    if(ext.appFile.appFile) {
-      app.setDescription("Compile the OTP application.")
+    if(ext.appInfo.resourceFile) {
+      app.setDescription("Compile the OTP applications.")
     }
     else {
       app.setDescription("Compile OTP applications defined in sub-projects.")

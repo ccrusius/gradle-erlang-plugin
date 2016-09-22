@@ -8,7 +8,8 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
-import org.ccrusius.erlang.utils.AppFile
+
+import org.ccrusius.erlang.ApplicationInfo
 import org.ccrusius.erlang.utils.FileUtils
 
 ///
@@ -85,9 +86,9 @@ class ApplicationInstall extends DefaultTask {
 
   @OutputDirectory
   File getOutputDirectory() {
-    AppFile app = new AppFile(project)
-    app.setAppFile(getInputAppFile())
-    String dirName = app.getAppDirName()
+    ApplicationInfo app = new ApplicationInfo(project)
+    app.setResourceFile(getInputAppFile())
+    String dirName = app.dirName
     return new File(getInstallBaseDir(), dirName)
   }
 

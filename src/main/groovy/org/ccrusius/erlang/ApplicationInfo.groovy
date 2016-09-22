@@ -92,7 +92,8 @@ class ApplicationInfo {
     if(result == 'undefined') {
       result = project.version
       if(result == 'unspecified') {
-        result = project.ext.version
+        try { result = project.ext.version }
+        catch(all) { }
       }
     }
     return result

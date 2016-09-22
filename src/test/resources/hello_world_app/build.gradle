@@ -2,11 +2,10 @@ plugins {
   id 'org.ccrusius.erlang' apply false
 }
 
-ext {
-  version = "1.2.3"
-}
-
 apply plugin: 'org.ccrusius.erlang'
+
+project.erlang.appInfo.setName('wowza')
+project.erlang.appInfo.setVersion('4.5.6')
 
 import org.ccrusius.erlang.tasks.ApplicationInstall
 

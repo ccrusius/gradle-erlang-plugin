@@ -62,12 +62,25 @@ class Application extends DefaultTask {
     new File(project.extensions.ebuildLibDir, getAppName())
   }
 
+  /// -------------------------------------------------------------------------
+  ///
+  /// The installation directory
+  ///
+  /// -------------------------------------------------------------------------
   @Internal
   File getInstallDir() {
-    def app = getAppInfo()
-    new File("${project.buildDir}/install/erlang-lib/${app.dirName}")
+    if(installDir) { return project.file(installDir) }
+    new File("${project.buildDir}/install/erlang-lib")
   }
 
+  void setInstallDir(Object dir) {
+    this.installDir = dir
+  }
+
+  private Object installDir
+
+  /// -------------------------------------------------------------------------
+  /// -------------------------------------------------------------------------
   @Internal
   private
   List getSourceFiles() {
@@ -149,12 +162,12 @@ class Application extends DefaultTask {
   private
   void createInstallTask(Project project) {
     def app = getAppInfo()
-    def dir = getInstallDir()
+    def dir = new File(getInstallDir(), app.dirName)
     def ebin = new File(dir, 'ebin')
 
     def install = project.tasks.create(
       "install${app.name.capitalize()}Application",
-      ApplicationInstall.class)
+      DefaultTask.class)
 
     def friendly = FileUtils.getAbsolutePath(dir)
     def pdir = FileUtils.getAbsolutePath(getAppInfo().sourceDir)
@@ -167,14 +180,25 @@ class Application extends DefaultTask {
     ///
     install.dependsOn this.appFileTask
     def srcApp = this.appFileTask.outputs.files.singleFile
-    install.setInputAppFile(srcApp)
+    install.inputs.file(srcApp)
+    install.outputs.file(new File(ebin, srcApp.name))
+    install << { project.copy {
+        from srcApp
+        into ebin
+      }}
     ///
     /// Copy the .beam files
     ///
+    install.outputs.dir(ebin)
     beamTasks.each {
       install.dependsOn it
       def out = it.outputFile
-      install.addInputBeams(out)
+      install.inputs.file(out)
+      install.outputs.file(new File(ebin, out.name))
+      install << { project.copy {
+          from out
+          into ebin
+        }}
     }
   }
 

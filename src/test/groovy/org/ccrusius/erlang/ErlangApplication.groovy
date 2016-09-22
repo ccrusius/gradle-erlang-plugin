@@ -15,10 +15,10 @@ class ErlangApplicationTest extends PluginTestBase {
     setTestBuildDir(buildDir)
 
     when:
-    def result = runGradleTask('installHello_worldApplication')
+    def result = runGradleTask('ebuild')
 
     then:
-    result.task(':installHello_worldApplication').outcome == SUCCESS
+    result.task(':ebuild').outcome == SUCCESS
   }
 
   def "non-standard"() {

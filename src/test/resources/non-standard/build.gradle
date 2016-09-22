@@ -12,5 +12,6 @@ appInfo.setSourceDir('subdir')
 
 task nonstandard(type: Application) {
   setAppInfo(appInfo)
+  setInstallDir(new File(project.buildDir, 'customized-install-dir'))
   createSubTasks(project)
 }

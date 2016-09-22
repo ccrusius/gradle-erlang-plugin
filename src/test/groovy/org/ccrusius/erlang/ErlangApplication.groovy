@@ -21,6 +21,21 @@ class ErlangApplicationTest extends PluginTestBase {
     result.task(':installHello_worldApplication').outcome == SUCCESS
   }
 
+  def "non-standard"() {
+    def baseDir = new File(getResourcesDir(), 'non-standard')
+    def buildDir = new File("${testBuildDir.parentFile}", 'non-standard')
+
+    given:
+    testProjectDir = baseDir
+    setTestBuildDir(buildDir)
+
+    when:
+    def result = runGradleTask('installCustomizedApplication')
+
+    then:
+    result.task(':installCustomizedApplication').outcome == SUCCESS
+  }
+
   def "erlcount (From 'Learn Yourself Some Erlang for Great Good')" () {
     def baseDir = new File(getResourcesDir(), 'lyse-erlcount')
     def buildDir = new File("${testBuildDir.parentFile}", 'erlcount')

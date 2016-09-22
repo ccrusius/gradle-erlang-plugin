@@ -15,7 +15,6 @@ class ErlangPlugin implements Plugin<Project> {
   static final String ERLANG_BUILD_TASK_NAME = 'ebuild'
   static final String ERLANG_BUILD_DIR_NAME = 'ebuildDir'
   static final String ERLANG_BUILD_LIB_DIR_NAME = 'ebuildLibDir'
-  static final String ERLANG_BUILD_APP_DIR_NAME = 'ebuildAppDir'
 
   static final String ERLANG_RELTOOL_TASK_NAME = 'reltool'
   static final String ERLANG_RELTOOL_CONFIG_FILE = 'reltoolConfigFile'
@@ -51,12 +50,6 @@ class ErlangPlugin implements Plugin<Project> {
 
   private void configureApplication(Project project) {
     def ext = project.extensions.erlang
-
-    if(ext.appInfo.resourceFile) {
-      def fqdn = ext.appInfo.dirName
-      def dir = new File(project.extensions.ebuildLibDir, fqdn)
-      project.extensions.add(ERLANG_BUILD_APP_DIR_NAME, dir)
-    }
 
     tasks.Application app = project.getTasks().create(
       ERLANG_BUILD_TASK_NAME,

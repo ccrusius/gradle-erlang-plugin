@@ -1,0 +1,16 @@
+plugins {
+  id 'org.ccrusius.erlang'
+}
+
+import org.ccrusius.erlang.ApplicationInfo
+import org.ccrusius.erlang.tasks.Application
+
+ApplicationInfo appInfo = new ApplicationInfo(project)
+appInfo.setVersion('9.8.7')
+appInfo.setName('customized')
+appInfo.setSourceDir('subdir')
+
+task nonstandard(type: Application) {
+  setAppInfo(appInfo)
+  createSubTasks(project)
+}

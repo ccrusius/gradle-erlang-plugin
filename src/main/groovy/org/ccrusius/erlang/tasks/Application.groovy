@@ -38,8 +38,15 @@ class Application extends DefaultTask {
   }
 
   @Internal
-  private
-  ApplicationInfo getAppInfo() { project.extensions.erlang.appInfo }
+  ApplicationInfo getAppInfo() {
+    appInfo ? appInfo : project.extensions.erlang.appInfo
+  }
+
+  void setAppInfo(ApplicationInfo appInfo) {
+    this.appInfo = appInfo
+  }
+
+  private ApplicationInfo appInfo = null
 
   @Internal
   private
@@ -51,7 +58,9 @@ class Application extends DefaultTask {
 
   @Internal
   private
-  File getOutputDir() { project.extensions.ebuildAppDir }
+  File getOutputDir() {
+    new File(project.extensions.ebuildLibDir, getAppName())
+  }
 
   @Internal
   File getInstallDir() {
@@ -62,7 +71,7 @@ class Application extends DefaultTask {
   @Internal
   private
   List getSourceFiles() {
-    def all = new File(project.projectDir, "src").listFiles()
+    def all = new File(getAppInfo().sourceDir, "src").listFiles()
     all.findAll { FileUtils.getExtension(it) == '.erl' }
   }
 
@@ -148,7 +157,7 @@ class Application extends DefaultTask {
       ApplicationInstall.class)
 
     def friendly = FileUtils.getAbsolutePath(dir)
-    def pdir = FileUtils.getAbsolutePath(project.projectDir)
+    def pdir = FileUtils.getAbsolutePath(getAppInfo().sourceDir)
     if(friendly.startsWith(pdir)) {
       friendly = (friendly - pdir).substring(1)
     }

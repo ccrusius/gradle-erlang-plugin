@@ -19,6 +19,22 @@ class ApplicationInfo {
 
   /// -------------------------------------------------------------------------
   ///
+  /// The application source base directory
+  ///
+  /// -------------------------------------------------------------------------
+
+  File getSourceDir() {
+    sourceDir ? project.file(sourceDir) : project.projectDir
+  }
+
+  void setSourceDir(Object dir) {
+    this.sourceDir = dir
+  }
+
+  private Object sourceDir
+
+  /// -------------------------------------------------------------------------
+  ///
   /// The application resource file
   ///
   /// -------------------------------------------------------------------------
@@ -36,7 +52,7 @@ class ApplicationInfo {
   private Object resourceFile = null
 
   private File findResourceFile() {
-    def dir = new File(project.projectDir, 'ebin')
+    def dir = new File(getSourceDir(), 'ebin')
     def all = dir.listFiles()
     def candidates = all.findAll { FileUtils.getExtension(it) == '.app' }
     switch(candidates.size()) {

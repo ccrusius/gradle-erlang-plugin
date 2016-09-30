@@ -100,12 +100,22 @@ class Conf extends DefaultTask {
 
   @TaskAction
   void build() {
+    generate(project, getSource(), getOutput(), getReplacements())
+  }
+
+  /// -------------------------------------------------------------------------
+  /// -------------------------------------------------------------------------
+
+  static void generate(
+    Project project,
+    File input, File output,
+    final List<Tuple2> replacements) {
 
     File script = File.createTempFile("temp",".erl")
     script.deleteOnExit()
 
     script.write("%% -*- erlang -*-\n")
-    getReplacements().each {
+    replacements.each {
       def (atom, repl) = it
       script.append("f($atom) -> $repl;\n")
     }
@@ -114,9 +124,9 @@ f(T) when is_tuple(T) -> list_to_tuple(f(tuple_to_list(T)));
 f(X) -> X.
 
 main(_) ->\n
-{ok,[Conf]} = file:consult(\"${FileUtils.getAbsolutePath(getSource())}\"),
+{ok,[Conf]} = file:consult(\"${FileUtils.getAbsolutePath(input)}\"),
 NewConf = f(Conf),
-ok = file:write_file(\"${FileUtils.getAbsolutePath(getOutput())}\",
+ok = file:write_file(\"${FileUtils.getAbsolutePath(output)}\",
        io_lib:fwrite(\"~p.~n\", [NewConf])).
 """)
 

@@ -6,6 +6,10 @@ subprojects {
   apply plugin: 'org.ccrusius.erlang'
 }
 
+ext {
+  version = '1.2.3.4-pre5'
+}
+
 task install
 
 install.dependsOn ':ppool:installPpoolApplication'

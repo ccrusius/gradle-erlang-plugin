@@ -17,8 +17,29 @@ import org.ccrusius.erlang.utils.FileUtils
 @ParallelizableTask
 class RelTool extends DefaultTask {
 
+  RelTool() {
+    /// Always run when asked to
+    outputs.upToDateWhen { false }
+  }
+
+  /// -------------------------------------------------------------------------
+  /// -------------------------------------------------------------------------
+
   @TaskAction
   void build() {
+    /// First, process the configuration file
+    def version = project.version
+    if(version == 'unspecified') {
+      try { version = project.ext.version }
+      catch(all) { version = 'no_version' }
+    }
+    List<Tuple2> repl = new ArrayList<Tuple2>()
+    repl.add(new Tuple2('gradle_project_version', "\"$version\""))
+    File conf = File.createTempFile("temp",".conf")
+    conf.deleteOnExit()
+    Conf.generate(project, getConfigFile(), conf, repl)
+
+    /// Now, use that configuration file and generate the release
     def escript = project.extensions.erlang.installation.escript
     def dir = getOutputDir()
     if(dir.exists()) { assert dir.deleteDir() }
@@ -26,7 +47,7 @@ class RelTool extends DefaultTask {
 
     escript.eval("""
 io:format(\"reltool: Reading reltool configuration file~n\"),
-{ok,[{sys, Props}]} = file:consult(\"${FileUtils.getAbsolutePath(getConfigFile())}\"),
+{ok,[{sys, Props}]} = file:consult(\"${FileUtils.getAbsolutePath(conf)}\"),
 
 io:format(\"reltool: Massaging reltool configuration~n\"),
 Conf = {sys, [ { lib_dirs, [ \"${FileUtils.getAbsolutePath(project.ebuildLibDir)}\" ] } | Props ] },

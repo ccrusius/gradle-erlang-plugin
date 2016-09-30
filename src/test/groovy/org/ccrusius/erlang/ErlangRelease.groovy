@@ -16,5 +16,7 @@ class ErlangReleaseTest extends PluginTestBase {
 
     then:
     result.task(':reltool').outcome == SUCCESS
+
+    new File("${testBuildDir}/erlang/rel/releases/1.2.3.4-pre5/erlcount.boot").exists()
   }
 }

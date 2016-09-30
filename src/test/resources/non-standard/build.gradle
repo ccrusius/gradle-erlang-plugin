@@ -5,28 +5,44 @@ plugins {
 import org.ccrusius.erlang.ApplicationInfo
 import org.ccrusius.erlang.tasks.Application
 
-ApplicationInfo appInfo = new ApplicationInfo(project)
-appInfo.with {
-  setVersion('9.8.7')
-  setName('customized')
+ext {
+  version = "1.2.3.4-pre3"
+}
+
+ApplicationInfo appInfo1 = new ApplicationInfo(project)
+appInfo1.with {
+  setVersion('1.1.1')
+  setName('app1')
   setSourceDir('subdir')
 }
 
-task nonstandard(type: Application) {
-  setAppInfo(appInfo)
-  setInstallDir(new File(project.buildDir, 'customized-install-dir'))
+task nonstandard1(type: Application) {
+  setAppInfo(appInfo1)
+  setInstallDir(new File(project.buildDir, 'dir1'))
   createSubTasks(project)
 }
 
 ApplicationInfo appInfo2 = new ApplicationInfo(project)
 appInfo2.with {
-  setName('customized2')
-  setDirName('my-dir-name')
+  setName('app2')
   setSourceDir('subdir')
 }
 
 task nonstandard2(type: Application) {
   setAppInfo(appInfo2)
-  setInstallDir(new File(project.buildDir, 'customized-install-dir2'))
+  setInstallDir(new File(project.buildDir, 'dir2'))
+  createSubTasks(project)
+}
+
+ApplicationInfo appInfo3 = new ApplicationInfo(project)
+appInfo3.with {
+  setName('app3')
+  setDirName('dir3')
+  setSourceDir('subdir')
+}
+
+task nonstandard3(type: Application) {
+  setAppInfo(appInfo3)
+  setInstallDir(new File(project.buildDir, 'dir3'))
   createSubTasks(project)
 }

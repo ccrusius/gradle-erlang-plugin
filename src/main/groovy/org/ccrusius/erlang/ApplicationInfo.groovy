@@ -103,7 +103,11 @@ class ApplicationInfo {
     def escript = project.extensions.erlang.installation.getEscript()
     def result = escript.eval("""
       {ok,[{application,_,Props}]}=file:consult(\"${appFile}\"),
-      io:format("~s",[proplists:get_value(vsn, Props)]).
+      Vsn = proplists:get_value(vsn, Props),
+      if
+        is_atom(Vsn) -> io:format(\"undefined\");
+        true -> io:format(\"~s\",[Vsn])
+      end.
     """)
     if(result == 'undefined') {
       result = project.version
@@ -136,33 +140,4 @@ class ApplicationInfo {
   }
 
   private String dirName = null
-
-  /// -------------------------------------------------------------------------
-  ///
-  /// Write the app file in a normalized version. Fills in values that are
-  /// not present.
-  ///
-  /// -------------------------------------------------------------------------
-  void write(File file) {
-    String vsn = getVersion()
-    String name = getName()
-    String appFile = FileUtils.getAbsolutePath(getResourceFile())
-    def escript = project.extensions.erlang.installation.getEscript()
-
-    if(file.exists()) { assert file.delete() }
-    file.parentFile.mkdirs()
-
-    escript.eval("""
-      {ok,[{application,AppName,Props}]}=file:consult(\"${appFile}\"),
-      SortedProps = orddict:from_list(Props),
-      PropsWithVsn = orddict:merge(fun(K,V1,V2) -> V1 end,
-                                   [{vsn, \"${vsn}\"}],
-                                   SortedProps),
-      ok = file:write_file(\"${FileUtils.getAbsolutePath(file)}\",
-                 io_lib:fwrite(\"~p.~n\",
-                               [{application,${name},PropsWithVsn}])).
-    """)
-
-    assert file.exists()
-  }
 }

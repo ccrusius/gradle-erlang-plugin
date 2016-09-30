@@ -11,7 +11,7 @@ class ErlangApplicationTest extends PluginTestBase {
     def buildDir = new File("${testBuildDir.parentFile}", 'hello_world')
 
     given:
-    testProjectDir = baseDir
+    setTestProjectDir(baseDir)
     setTestBuildDir(buildDir)
 
     when:
@@ -26,17 +26,23 @@ class ErlangApplicationTest extends PluginTestBase {
     def buildDir = new File("${testBuildDir.parentFile}", 'non-standard')
 
     given:
-    testProjectDir = baseDir
+    setTestProjectDir(baseDir)
     setTestBuildDir(buildDir)
 
     when:
     showAllGradleTasks()
-    def result1 = runGradleTask('installCustomizedApplication')
-    def result2 = runGradleTask('installCustomized2Application')
+    def result1 = runGradleTask('installApp1Application')
+    def result2 = runGradleTask('installApp2Application')
+    def result3 = runGradleTask('installApp3Application')
 
     then:
-    result1.task(':installCustomizedApplication').outcome == SUCCESS
-    result2.task(':installCustomized2Application').outcome == SUCCESS
+    result1.task(':installApp1Application').outcome == SUCCESS
+    result2.task(':installApp2Application').outcome == SUCCESS
+    result3.task(':installApp3Application').outcome == SUCCESS
+
+    new File("${buildDir}/dir1/app1-1.1.1/ebin/app1.app").exists()
+    new File("${buildDir}/dir2/app2-1.2.3.4-pre3/ebin/app2.app").exists()
+    new File("${buildDir}/dir3/dir3/ebin/app3.app").exists()
   }
 
   def "erlcount (From 'Learn Yourself Some Erlang for Great Good')" () {
@@ -44,7 +50,7 @@ class ErlangApplicationTest extends PluginTestBase {
     def buildDir = new File("${testBuildDir.parentFile}", 'erlcount')
 
     given:
-    testProjectDir = baseDir
+    setTestProjectDir(baseDir)
     setTestBuildDir(buildDir)
 
     when:

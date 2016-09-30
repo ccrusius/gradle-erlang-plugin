@@ -101,20 +101,27 @@ class Application extends DefaultTask {
     def file = app.resourceFile
     def out = new File(dir, "${app.name}.app")
 
-    this.appFileTask = project.tasks.findByPath(file.name)
+    def version = project.version
+    if(version == 'unspecified') {
+      try { version = project.ext.version }
+      catch(all) { version = 'no_version' }
+    }
+
+    this.appFileTask = project.tasks.findByPath(out.name)
     if(this.appFileTask == null) {
-      this.appFileTask = project.tasks.create(file.name, DefaultTask.class)
+      this.appFileTask = project.tasks.create(out.name, Conf.class)
       this.appFileTask.with {
+        setSource(file)
+        setOutput(out)
+        addReplacement('gradle_project_version', "\"$version\"")
+        addReplacement('app_version', "\"${app.version}\"")
         setDescription("Generate application '.app' file")
-        inputs.file(file)
-        outputs.file(out)
-        doLast { app.write(out) }
       }
     }
     dependsOn this.appFileTask
   }
 
-  private Task appFileTask = null
+  private Conf appFileTask = null
 
   @Optional
   @OutputFile
@@ -187,7 +194,7 @@ class Application extends DefaultTask {
     /// Copy the .app file
     ///
     install.dependsOn this.appFileTask
-    def srcApp = this.appFileTask.outputs.files.singleFile
+    def srcApp = this.appFileTask.output
     install.inputs.file(srcApp)
     install.outputs.file(new File(ebin, srcApp.name))
     install << { project.copy {

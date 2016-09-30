@@ -77,11 +77,11 @@ needs to be built when it finds an `.app` file in
 the sources in `$projectDir/src`. Individual tasks for the application's `.beam`
 files will also be created.
 
-The app file does not need to have `vsn` explicitly specified. If it
-is not, the plugin will try to get the version from `project.version`
+In the app file, any occurrences of the `gradle_project_version` atom will
+be replaced by the value of `project.version`
 (which is filled in, for example, by the
-[git versioning plugin](https://plugins.gradle.org/plugin/com.zoltu.git-versioning))
-and, if it doesn't find it there, it tries `project.ext.version`.
+[git versioning plugin](https://plugins.gradle.org/plugin/com.zoltu.git-versioning)),
+or, if that doesn't exist, by `project.ext.version`.
 
 For each application, the plugin will create a
 `installNameApplication` task, where `Name` is the application name

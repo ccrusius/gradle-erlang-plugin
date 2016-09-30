@@ -3,17 +3,25 @@ package org.ccrusius.erlang
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Specification
+import spock.lang.Shared
 
 class PluginTestBase extends Specification {
-  Properties props = new Properties()
+  @Shared Properties props = new Properties()
 
-  File testProjectDir
+  @Shared File defaultTestProjectDir
 
-  File testBuildDir
+  File testProjectDir = null
 
-  File testCacheDir
+  File testBuildDir = null
 
-  def setup () {
+  File testCacheDir = null
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// Run before first test ("feature method")
+  ///
+  /// -------------------------------------------------------------------------
+  def setupSpec() {
     props.load(
       getClass().classLoader
       .getResourceAsStream('org.ccrusius.erlang.test.properties'))
@@ -21,10 +29,21 @@ class PluginTestBase extends Specification {
     def baseDir = new File(
       props.getProperty('gradleBuildDir'),
       'test-projects')
-    baseDir.mkdirs()
 
-    testProjectDir = new File(baseDir, getClass().simpleName)
-    testProjectDir.mkdirs()
+    defaultTestProjectDir = new File(baseDir, getClass().simpleName)
+    if(defaultTestProjectDir.exists()) {
+      println "Removing existing default test project directory $defaultTestProjectDir"
+      assert defaultTestProjectDir.deleteDir()
+    }
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// Run before every test ("feature method")
+  ///
+  /// -------------------------------------------------------------------------
+  def setup () {
+    testProjectDir = new File(defaultTestProjectDir.absolutePath)
 
     setTestBuildDir(new File(testProjectDir, "build"))
 
@@ -32,12 +51,29 @@ class PluginTestBase extends Specification {
     testCacheDir.mkdirs()
   }
 
+  /// -------------------------------------------------------------------------
+  ///
+  /// The test project directory.
+  /// This is where 'gradle' is going to be executed from
+  ///
+  /// -------------------------------------------------------------------------
+
+  void setTestProjectDir(File newDir) {
+    testProjectDir = newDir
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The build directory
+  ///
+  /// -------------------------------------------------------------------------
+
   void setTestBuildDir(File newDir) {
-    testBuildDir = newDir
-    if(testBuildDir.exists()) {
-      assert testBuildDir.deleteDir()
+    if(testBuildDir && testBuildDir.exists()) {
+      println "Removing old test build directory $testBuildDir"
+      testBuildDir.deleteDir()
     }
-    testBuildDir.mkdirs()
+    testBuildDir = newDir
   }
 
   File emptyProjectFile(String path) {

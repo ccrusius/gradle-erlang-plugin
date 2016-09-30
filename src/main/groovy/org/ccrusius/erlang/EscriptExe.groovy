@@ -22,6 +22,8 @@ class EscriptExe {
     def cmdline = [ exe, script.name ]
     project.logger.debug("EscriptExe.run(${cmdline.join(' ')})")
 
+    project.logger.debug("EscriptExe.script:\n${script.text}")
+
     def process = new ProcessBuilder(cmdline)
       .redirectErrorStream(true)
       .directory(script.parentFile)
@@ -45,8 +47,6 @@ class EscriptExe {
     File script = File.createTempFile("temp",".erl")
     script.deleteOnExit()
     script.write(contents)
-
-    project.logger.debug("EscriptExe.eval:\n${contents}")
 
     try {
       return run(script)

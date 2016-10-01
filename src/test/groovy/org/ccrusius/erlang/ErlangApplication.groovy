@@ -15,10 +15,12 @@ class ErlangApplicationTest extends PluginTestBase {
     setTestBuildDir(buildDir)
 
     when:
+    showAllGradleTasks()
     def result = runGradleTask('ebuild')
 
     then:
     result.task(':ebuild').outcome == SUCCESS
+    new File("${buildDir}/erlang/lib/hello_world-1.0.0/ebin/hello_world.app").exists()
   }
 
   def "non-standard"() {
@@ -31,18 +33,14 @@ class ErlangApplicationTest extends PluginTestBase {
 
     when:
     showAllGradleTasks()
-    def result1 = runGradleTask('installApp1Application')
-    def result2 = runGradleTask('installApp2Application')
-    def result3 = runGradleTask('installApp3Application')
+    def result = runGradleTask('ebuild')
 
     then:
-    result1.task(':installApp1Application').outcome == SUCCESS
-    result2.task(':installApp2Application').outcome == SUCCESS
-    result3.task(':installApp3Application').outcome == SUCCESS
+    result.task(':ebuild').outcome == SUCCESS
 
-    new File("${buildDir}/dir1/app1-1.1.1/ebin/app1.app").exists()
-    new File("${buildDir}/dir2/app2-1.2.3.4-pre3/ebin/app2.app").exists()
-    new File("${buildDir}/dir3/dir3/ebin/app3.app").exists()
+    new File("${buildDir}/dir1-1.1.1/ebin/hello_world.app").exists()
+    new File("${buildDir}/dir2-2.2.2/ebin/hello_world.app").exists()
+    new File("${buildDir}/erlang/lib/hello_world-3.3.3/ebin/hello_world.app").exists()
   }
 
   def "erlcount (From 'Learn Yourself Some Erlang for Great Good')" () {
@@ -54,11 +52,11 @@ class ErlangApplicationTest extends PluginTestBase {
     setTestBuildDir(buildDir)
 
     when:
-    def ppool = runGradleTask(':ppool:installPpoolApplication')
-    def erlcount = runGradleTask(':erlcount:installErlcountApplication')
+    def result = runGradleTask('ebuild')
 
     then:
-    ppool.task(':ppool:installPpoolApplication').outcome == SUCCESS
-    erlcount.task(':erlcount:installErlcountApplication').outcome == SUCCESS
+    result.task(':ebuild').outcome == SUCCESS
+    new File("${buildDir}/erlang/lib/ppool-1.0.0/ebin/ppool.app").exists()
+    new File("${buildDir}/erlang/lib/erlcount-1.0.0/ebin/erlcount.app").exists()
   }
 }

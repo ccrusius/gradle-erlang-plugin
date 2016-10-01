@@ -1,0 +1,27 @@
+plugins {
+  id 'org.ccrusius.erlang'
+}
+
+import org.ccrusius.erlang.tasks.RelTool
+import org.ccrusius.erlang.tasks.Application
+import org.ccrusius.erlang.tasks.PrecompiledApplication
+
+task echoer(type: PrecompiledApplication) {
+  baseDir 'precompiled/echoer'
+}
+
+task cranky(type: Application) {
+  dependsOn echoer
+  baseDir 'lib/cranky'
+  setCompilerOpts('-Werror')
+}
+
+cranky.finalize()
+
+task reltool(type: RelTool) {
+  dependsOn echoer
+  dependsOn cranky
+  configFile 'omnibus.config'
+}
+
+reltool.finalize()

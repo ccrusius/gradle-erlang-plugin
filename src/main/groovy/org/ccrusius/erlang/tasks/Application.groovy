@@ -4,230 +4,322 @@ import org.gradle.api.Task
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
 
-import org.ccrusius.erlang.ApplicationInfo
 import org.ccrusius.erlang.utils.FileUtils
+import org.ccrusius.erlang.utils.AppFile
 
-/**
- * @author Cesar Crusius
- */
+/// ===========================================================================
+///
+/// Application
+///
+/// Builds an application from an OTP-compliant directory structure:
+///
+///    <root>/ebin/<app>.app
+///    <root>/src/<src>.erl*
+///
+/// task my_app(type: Application) {
+///   baseDir 'blah'
+///   [outDir 'bloh']
+/// }
+/// my_app.finalize() /// THIS IS NECESSARY
+///
+/// ===========================================================================
 @ParallelizableTask
 class Application extends DefaultTask {
 
+  Application() {
+    project.tasks.findByPath('ebuild').dependsOn this
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// Build the application
+  ///
+  /// -------------------------------------------------------------------------
   @TaskAction
   void build() {
     // All the work is done via sub-tasks.
     logger.info("Building OTP application")
   }
 
-  /**
-   * Create the application sub-tasks.
-   */
-  void createSubTasks(Project project) {
-    if(getResourceFile()) {
-      createAppFileSubTasks(project)
-      createBeamSubTasks(project)
-      createInstallTask(project)
+  /// -------------------------------------------------------------------------
+  ///
+  /// Create all the sub-tasks, and set up dependencies
+  ///
+  /// -------------------------------------------------------------------------
+  void finalize() {
+    this.dependsOn getOutAppFileTask()
+    getOutBeamFileTasks().each { this.dependsOn it }
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The base directory. This is the root of the OTP application source tree.
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  File getBaseDir() {
+    project.file(this.baseDir)
+  }
+
+  void setBaseDir(Object baseDir) {
+    this.baseDir = baseDir
+  }
+
+  private Object baseDir
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The output directory
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  File getOutDir() {
+    if(this.outDir) { return project.file(this.outDir) }
+    return project.file(
+      "${project.buildDir}/erlang/lib/${getAppName()}-${getVersion()}")
+  }
+
+  void setOutDir(Object outDir) {
+    this.outDir = outDir
+  }
+
+  private Object outDir
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application file
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  File getAppFile() {
+    if(this.appFile) { return project.file(this.appFile) }
+
+    def dir = new File(getBaseDir(), 'ebin')
+    def candidates = dir.listFiles().findAll {
+      FileUtils.getExtension(it) == '.app'
     }
-    linkToParent(project)
-  }
-
-  @Internal
-  ApplicationInfo getAppInfo() {
-    appInfo ? appInfo : project.extensions.erlang.appInfo
-  }
-
-  void setAppInfo(ApplicationInfo appInfo) {
-    this.appInfo = appInfo
-  }
-
-  private ApplicationInfo appInfo = null
-
-  @Internal
-  private
-  File getResourceFile() { getAppInfo().resourceFile }
-
-  @Internal
-  private
-  String getAppName() { getAppInfo().name }
-
-  @Internal
-  private
-  File getOutputDir() {
-    new File(project.extensions.ebuildLibDir, getAppName())
-  }
-
-  /// -------------------------------------------------------------------------
-  ///
-  /// The installation directory
-  ///
-  /// -------------------------------------------------------------------------
-  @Internal
-  File getInstallDir() {
-    if(installDir) { return project.file(installDir) }
-    new File("${project.buildDir}/install/erlang-lib")
-  }
-
-  void setInstallDir(Object dir) {
-    this.installDir = dir
-  }
-
-  private Object installDir
-
-  /// -------------------------------------------------------------------------
-  /// -------------------------------------------------------------------------
-  @Internal
-  private
-  List getSourceFiles() {
-    def all = new File(getAppInfo().sourceDir, "src").listFiles()
-    all.findAll { FileUtils.getExtension(it) == '.erl' }
-  }
-
-  /// -------------------------------------------------------------------------
-  ///
-  /// Create the .app file generation task
-  ///
-  /// -------------------------------------------------------------------------
-  private
-  void createAppFileSubTasks(Project project) {
-    def app = getAppInfo()
-    def dir = new File(getOutputDir(), 'ebin')
-    def file = app.resourceFile
-    def out = new File(dir, "${app.name}.app")
-
-    def version = project.version
-    if(version == 'unspecified') {
-      try { version = project.ext.version }
-      catch(all) { version = 'no_version' }
+    switch(candidates.size()) {
+      case { it == 0 }:
+        throw new GradleException(
+          "Erlang: No .app file in '${dir.absolutePath}'")
+      case { it > 1 }:
+        throw new GradleException(
+          "Erlang: Too many .app files in '${dir.absolutePath}'")
     }
+    this.appFile = candidates[0]
+    return this.appFile
+  }
 
-    this.appFileTask = project.tasks.findByPath(out.name)
-    if(this.appFileTask == null) {
-      this.appFileTask = project.tasks.create(out.name, Conf.class)
-      this.appFileTask.with {
-        setSource(file)
-        setOutput(out)
-        addReplacement('gradle_project_version', "\"$version\"")
-        addReplacement('app_version', "\"${app.version}\"")
-        setDescription("Generate application '.app' file")
+  private Object appFile
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application name
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  String getAppName() {
+    if(!this.appName) {
+      this.appName = new AppFile(project, getAppFile()).getAppName()
+    }
+    return this.appName
+  }
+
+  private String appName
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application version
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Input
+  String getVersion() {
+    if(!this.appVersion) {
+      this.appVersion = new AppFile(project, getAppFile()).getAppVersion()
+    }
+    return this.appVersion
+  }
+
+  void setVersion(String version) {
+    this.appVersion = version
+  }
+
+  private String appVersion
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The application file build-defined properties
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Input
+  List<String> getAppFileVariableNames() {
+    this.appFileVariables.collect { it.get(0) }
+  }
+
+  @Input
+  List<String> getAppFileVariableValues() {
+    this.appFileVariables.collect { it.get(1) }
+  }
+
+  void addAppFileVariable(String atom, String replacement) {
+    this.appFileVariables.add(new Tuple2(atom, replacement))
+  }
+
+  List<Tuple2> getAppFileVariables() {
+    return appFileVariables
+  }
+
+  private List<Tuple2> appFileVariables = new ArrayList<Tuple2>()
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The Erlang source files
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  List<File> getSourceFiles() {
+    def dir = new File(getBaseDir(), 'src')
+    return dir.listFiles().findAll { FileUtils.getExtension(it) == '.erl' }
+  }
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The output app file, and the task that generates it.
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  File getOutAppFile() {
+    project.file("${getOutDir()}/ebin/${getAppName()}.app")
+  }
+
+  @Internal
+  Conf getOutAppFileTask() {
+    if(!this.outAppFileTask) {
+      this.outAppFileTask = project.tasks.create(
+        "${getOutDir().name}#${getOutAppFile().name}",
+        Conf.class)
+      this.outAppFileTask.with {
+        setSource(getAppFile())
+        setOutput(getOutAppFile())
+        setReplacements(getAppFileVariables())
+        setDescription("Generate '.app' file for ${getAppName()}")
+      }
+      this.outAppFileTask.setVersion(this.getVersion())
+    }
+    return this.outAppFileTask
+  }
+
+  private Conf outAppFileTask
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// Add compiler options
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Input
+  List<String> getCompilerOpts() {
+    this.compilerOpts
+  }
+
+  void setCompilerOpts(Object... opts) {
+    compilerOpts.clear()
+    compilerOpts.addAll(opts.collect{it.toString()})
+  }
+
+  void setCompilerOpts(List<Object> opts) {
+    compilerOpts.clear()
+    compilerOpts.addAll(opts.collect{it.toString()})
+  }
+
+  private List<String> compilerOpts = []
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// Get library directories from dependencies
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  Set<File> getExternalAppDirs() { this.externalAppDirs }
+
+  void addExternalAppDirs(Object task) {
+    switch(task) {
+      case {!it}:
+        return
+      case {it instanceof Application}:
+        externalAppDirs.addAll(task.outDir)
+        break
+      case {it instanceof PrecompiledApplication}:
+        externalAppDirs.addAll(task.baseDir)
+        break
+    }
+    if(task instanceof Task) {
+      task.dependsOn.each {
+        addExternalAppDirs(it)
       }
     }
-    dependsOn this.appFileTask
   }
 
-  private Conf appFileTask = null
+  @Override
+  Task dependsOn(Object... paths) {
+    paths.each { this.addExternalAppDirs(it) }
+    super.dependsOn paths
+  }
 
-  @Optional
-  @OutputFile
-  File getOutputAppFile() {
-    if(appFileTask) {
-      appFileTask.outputs.files.singleFile
+  private Set<File> externalAppDirs = []
+
+  /// -------------------------------------------------------------------------
+  ///
+  /// The output beam files, and the tasks that generate them
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Internal
+  List<File> getOutBeamFiles() {
+    getSourceFiles().collect {
+      project.file("${getOutDir()}/ebin/${FileUtils.getCompiledName(it)}")
     }
   }
 
-  /// -------------------------------------------------------------------------
-  ///
-  /// Create the Erlang compilation tasks.
-  ///
-  /// For each .erl file in src/, produce a .beam file in ebin/
-  ///
-  /// -------------------------------------------------------------------------
-  private
-  void createBeamSubTasks(Project project) {
-    def dir = new File(getOutputDir(), 'ebin')
+  @Internal
+  List<Compile> getOutBeamFileTasks() {
+    if(!this.outBeamFileTasks) {
+      this.outBeamFileTasks = new ArrayList<Compile>()
+      def dir = new File(getOutDir(), 'ebin')
 
-    beamTasks.addAll(getSourceFiles().collect {
-                       def name = FileUtils.getCompiledName(it)
-                       def task = project.tasks.findByPath(name)
-                       if(task == null) {
-                         task = project.getTasks().create(name,Compile.class)
-                         task.setDescription("Compile ${it.name}")
-                         task.setSourceFile(it)
-                         task.setOutputDir(dir)
-                       }
-                       dependsOn task
-                       task
-                     })
+      this.outBeamFileTasks.addAll(
+        getSourceFiles().collect {
+          def name = FileUtils.getCompiledName(it)
+          def task = project.getTasks().create(
+            "${getOutDir().name}#${name}",Compile.class)
+          task.setDescription("Compile ${it.name}")
+          task.setSourceFile(it)
+          task.setOutputDir(dir)
+          getExternalAppDirs().each {
+            task.addArguments(
+              '-pa',
+              FileUtils.getAbsolutePath(new File(it,'ebin')))
+          }
+          task.addArguments(getCompilerOpts())
+          task
+        })
+    }
+    return this.outBeamFileTasks
   }
 
-  private final List<Task> beamTasks = new ArrayList<DefaultTask>()
-
-  @Optional
-  @OutputFiles
-  List<File> getOutputBeams() {
-    if(beamTasks.size() > 0) {
-      beamTasks.collect {
-        it.outputFile
-      }
-    }
-  }
-
-  /// -------------------------------------------------------------------------
-  ///
-  /// Create the application installation task.
-  ///
-  /// -------------------------------------------------------------------------
-
-  private
-  void createInstallTask(Project project) {
-    def app = getAppInfo()
-    def dir = new File(getInstallDir(), app.dirName)
-    def ebin = new File(dir, 'ebin')
-
-    def install = project.tasks.create(
-      "install${app.name.capitalize()}Application",
-      DefaultTask.class)
-
-    def friendly = FileUtils.getAbsolutePath(dir)
-    def pdir = FileUtils.getAbsolutePath(getAppInfo().sourceDir)
-    if(friendly.startsWith(pdir)) {
-      friendly = (friendly - pdir).substring(1)
-    }
-    install.setDescription("Install application in ${friendly}")
-    ///
-    /// Copy the .app file
-    ///
-    install.dependsOn this.appFileTask
-    def srcApp = this.appFileTask.output
-    install.inputs.file(srcApp)
-    install.outputs.file(new File(ebin, srcApp.name))
-    install << { project.copy {
-        from srcApp
-        into ebin
-      }}
-    ///
-    /// Copy the .beam files
-    ///
-    install.outputs.dir(ebin)
-    beamTasks.each {
-      install.dependsOn it
-      def out = it.outputFile
-      install.inputs.file(out)
-      install.outputs.file(new File(ebin, out.name))
-      install << { project.copy {
-          from out
-          into ebin
-        }}
-    }
-  }
-
-  /// -------------------------------------------------------------------------
-  ///
-  /// Link application task to parent's application task(s).
-  ///
-  /// -------------------------------------------------------------------------
-  private
-  void linkToParent(Project project) {
-    if(project.parent) {
-      project.parent.tasks.withType(Application).collect {
-        it.dependsOn this
-      }
-    }
-  }
+  private List<Compile> outBeamFileTasks
 }

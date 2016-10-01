@@ -2,15 +2,26 @@ plugins {
   id 'org.ccrusius.erlang'
 }
 
-subprojects {
-  apply plugin: 'org.ccrusius.erlang'
+import org.ccrusius.erlang.tasks.Application
+import org.ccrusius.erlang.tasks.RelTool
+
+task ppool(type: Application) {
+  baseDir "ppool"
 }
 
-ext {
-  version = '1.2.3.4-pre5'
+ppool.finalize()
+
+task erlcount(type: Application) {
+  baseDir "erlcount"
 }
 
-task install
+erlcount.finalize()
 
-install.dependsOn ':ppool:installPpoolApplication'
-install.dependsOn ':erlcount:installErlcountApplication'
+task reltool(type: RelTool) {
+  configFile 'erlcount.config'
+  outDir "$buildDir/erlang/rel/erlcount"
+  version "2.2.2"
+}
+
+reltool.finalize()
+reltool.dependsOn ebuild

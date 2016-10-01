@@ -44,71 +44,12 @@ class Compile extends DefaultTask {
 
   private Object outputDir
 
-  /// -------------------------------------------------------------------------
-  ///
-  /// What to rename the file to, before compiling.
-  /// This is advanced usage, intended for renaming modules.
-  ///
-  /// -------------------------------------------------------------------------
-  @Input
-  String getNewName() {
-    if(newName == null) { return getSourceFile().name }
-    newName.toString()
-  }
-
-  void setNewName(String newName) {
-    this.newName = newName
-  }
-
-  private Object newName = null
-
-  /// -------------------------------------------------------------------------
-  ///
-  /// The replacement pairs.
-  ///
-  /// When copying files for compilation, the user can also transform
-  /// their text by specifying (regex, repl) pairs. Those are stored in
-  /// a list of Tuple2, which Gradle does not like as @Inputs. Splitting
-  /// the tuples into two lists for Gradle seems to work.
-  ///
-  /// -------------------------------------------------------------------------
-  @Input
-  List<String> getReplacementRegexs() {
-    replacements.collect {
-      def (regex, repl) = it
-      regex
-    }
-  }
-
-  @Input
-  List<String> getReplacementRepls() {
-    replacements.collect {
-      def (regex, repl) = it
-      repl
-    }
-  }
-
-  List<Tuple2> getReplacements() {
-    replacements
-  }
-
-  void setReplacements(List<Tuple2> replacements) {
-    this.replacements.clear()
-    this.replacements.addAll(replacements)
-  }
-
-  void addReplacement(String regex, String replacement) {
-    replacements.add(new Tuple2(regex,replacement))
-  }
-
-  private final List<Tuple2> replacements = new ArrayList<Tuple2>()
-
   @OutputFile
   File getOutputFile() {
     if(outputFile == null) {
       outputFile = new File(
         getOutputDir(),
-        FileUtils.getCompiledName(new File(getNewName())))
+        FileUtils.getCompiledName(getSourceFile()))
     }
     project.file(outputFile)
   }
@@ -129,6 +70,14 @@ class Compile extends DefaultTask {
     this.args.addAll(args)
   }
 
+  void addArguments(String... args) {
+    this.args.addAll(args)
+  }
+
+  void addArguments(List<String> args) {
+    this.args.addAll(args)
+  }
+
   private final List<String> args = new ArrayList<String>()
 
   /// -------------------------------------------------------------------------
@@ -138,26 +87,8 @@ class Compile extends DefaultTask {
   /// -------------------------------------------------------------------------
   @TaskAction
   void compile() {
-    def source = getSourceFile()
-    def newSource = null
-    if(this.newName) {
-      def text = source.text
-      getReplacements().each {
-        def (regex, repl) = it
-        text = text.replaceAll(regex, repl)
-      }
-      newSource = new File(source.parent, getNewName())
-      assert !newSource.exists()
-      newSource << text
-    }
-
-    try {
-      project.extensions.erlang.installation.getErlc()
-      .withArguments(args)
-      .run(newSource ? newSource : source, getOutputDir())
-    }
-    finally {
-      if(newSource) { newSource.delete() }
-    }
+    project.extensions.erlang.installation.getErlc()
+    .withArguments(args)
+    .run(getSourceFile(), getOutputDir())
   }
 }

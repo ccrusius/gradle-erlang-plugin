@@ -94,22 +94,46 @@ class Conf extends DefaultTask {
 
   /// -------------------------------------------------------------------------
   ///
+  /// The version. This is a special replacement for convenience.
+  ///
+  /// -------------------------------------------------------------------------
+
+  @Input
+  String getVersion() {
+    return this.version
+  }
+
+  void setVersion(String version) {
+    this.version = version
+  }
+
+  private String version
+
+  /// -------------------------------------------------------------------------
+  ///
   /// Copy config file over, with suitable replacements
   ///
   /// -------------------------------------------------------------------------
 
   @TaskAction
   void build() {
-    generate(project, getSource(), getOutput(), getReplacements())
+    generate(project, getSource(), getOutput(), getVersion(), getReplacements())
   }
 
   /// -------------------------------------------------------------------------
+  ///
+  /// Generate a config file from the input one, performing the
+  /// necessary replacements.
+  ///
   /// -------------------------------------------------------------------------
 
   static void generate(
     Project project,
     File input, File output,
+    String erlVersion,
     final List<Tuple2> replacements) {
+
+    erlVersion = erlVersion ? "\"${erlVersion}\"" : "undefined"
 
     File script = File.createTempFile("temp",".erl")
     script.deleteOnExit()
@@ -126,8 +150,19 @@ f(X) -> X.
 main(_) ->\n
 {ok,[Conf]} = file:consult(\"${FileUtils.getAbsolutePath(input)}\"),
 NewConf = f(Conf),
+FinalConf = case ${erlVersion} of
+  undefined -> NewConf ;
+  Vsn -> case NewConf of
+    {application, Name, Props} ->
+      {application, Name, [{vsn, Vsn}|proplists:delete(vsn, Props)]};
+    {sys, Props} ->
+      {rel, Name, _, Extra} = proplists:lookup(rel, Props),
+      {sys, [{rel,Name,Vsn,Extra}|proplists:delete(rel,Props)]};
+    Other -> Other
+  end
+end,
 ok = file:write_file(\"${FileUtils.getAbsolutePath(output)}\",
-       io_lib:fwrite(\"~p.~n\", [NewConf])).
+       io_lib:fwrite(\"~p.~n\", [FinalConf])).
 """)
 
     def escript = project.extensions.erlang.installation.escript

@@ -2,47 +2,27 @@ plugins {
   id 'org.ccrusius.erlang'
 }
 
-import org.ccrusius.erlang.ApplicationInfo
 import org.ccrusius.erlang.tasks.Application
 
-ext {
-  version = "1.2.3.4-pre3"
-}
-
-ApplicationInfo appInfo1 = new ApplicationInfo(project)
-appInfo1.with {
-  setVersion('1.1.1')
-  setName('app1')
-  setSourceDir('subdir')
-}
-
 task nonstandard1(type: Application) {
-  setAppInfo(appInfo1)
-  setInstallDir(new File(project.buildDir, 'dir1'))
-  createSubTasks(project)
+  version '1.1.1'
+  baseDir 'subdir'
+  outDir new File(project.buildDir, 'dir1-1.1.1')
 }
 
-ApplicationInfo appInfo2 = new ApplicationInfo(project)
-appInfo2.with {
-  setName('app2')
-  setSourceDir('subdir')
-}
+nonstandard1.finalize()
 
 task nonstandard2(type: Application) {
-  setAppInfo(appInfo2)
-  setInstallDir(new File(project.buildDir, 'dir2'))
-  createSubTasks(project)
+  version '2.2.2'
+  baseDir 'subdir'
+  outDir new File(project.buildDir, 'dir2-2.2.2')
 }
 
-ApplicationInfo appInfo3 = new ApplicationInfo(project)
-appInfo3.with {
-  setName('app3')
-  setDirName('dir3')
-  setSourceDir('subdir')
-}
+nonstandard2.finalize()
 
 task nonstandard3(type: Application) {
-  setAppInfo(appInfo3)
-  setInstallDir(new File(project.buildDir, 'dir3'))
-  createSubTasks(project)
+  version '3.3.3'
+  baseDir 'subdir'
 }
+
+nonstandard3.finalize()

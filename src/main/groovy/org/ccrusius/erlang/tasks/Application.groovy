@@ -245,6 +245,14 @@ class Application extends DefaultTask {
     compilerOpts.addAll(opts.collect{it.toString()})
   }
 
+  void addCompilerOpts(Object... opts) {
+    compilerOpts.addAll(opts.collect{it.toString()})
+  }
+
+  void addCompilerOpts(List<Object> opts) {
+    compilerOpts.addAll(opts.collect{it.toString()})
+  }
+
   private List<String> compilerOpts = []
 
   /// -------------------------------------------------------------------------

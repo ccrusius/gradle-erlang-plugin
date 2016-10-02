@@ -1,7 +1,5 @@
 [![Build Status](https://travis-ci.org/ccrusius/gradle-erlang-plugin.svg?branch=master)](https://travis-ci.org/ccrusius/gradle-erlang-plugin)
 
-> **Major refactoring is now taken place towards version 2.0**
-
 # Erlang Plugin for Gradle
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
@@ -15,7 +13,6 @@
 - [Using Precompiled Applications](#using-precompiled-applications)
 - [Dependencies](#dependencies)
 - [Evaluating Erlang Code](#evaluating-erlang-code)
-- [Compiling Erlang Code](#compiling-erlang-code)
 
 <!-- markdown-toc end -->
 
@@ -29,21 +26,22 @@ which uses this to build both Erlang and C sources, and test the
 packages using Erlang's
 [Common Test](http://erlang.org/doc/man/ct.html) framework.
 
-The main reason behind this plugin is the need to incorporate Erlang
+The main reason behind this plugin was the need to incorporate Erlang
 into multi-language build environments: while `rebar` does its job
 well with Erlang, as soon as you get out of it you start running into
 trouble. Native binaries from C/C++, for example, are hard to pull
-off. The choices are: either one waits for `rebar` to add support for
-all other languages (Java, C/C++, etc) in all platforms (Windows,
-Unix, Mac, etc); or one adds Erlang support to a build system that
-already has all the other things taken care of. The second option is
+off. The choices were: I could either wait for `rebar` to add support
+for all other languages (Java, C/C++, etc) in all platforms (Windows,
+Unix, Mac, etc); or I could add Erlang support to a build system that
+already has all the other things taken care of. The second option was
 obviously the correct one.
 
-The next decision is to which build system to add Erlang support to,
-and there are not many around that can cover all the cases. Google's
-Bazel does not have proper Windows support yet. CMake supports C well,
-but everything else is clunky. At the end of the day, Gradle is the
-one that ticks most boxes, and that's the one I went with.
+The next decision was to which build system to add Erlang support to,
+and there were not many around that can cover all the cases. Google's
+Bazel did not have proper Windows support when I looked at it. CMake
+supported C well, but everything else was clunky. At the end of the
+day, Gradle was the one that ticked most boxes, and the one I went
+with.
 
 # Basic Use
 
@@ -54,11 +52,11 @@ one that ticks most boxes, and that's the one I went with.
 
 # Specifying which Erlang to Use
 
-The Erlang installation to be used is given by the `installation`
-property of the `erlang` extension. The default uses whatever you have
-on your `$PATH`. If you need to specify the path to an installation,
-you need to set the `erlangRoot` project property before applying the
-plugin. Example:
+The Erlang installation to be used is pointed to by the `erlangRoot`
+project property. The default uses whatever you have
+on your `$PATH`, so in most cases you do not need to touch it. Here's
+an example of what you would do to override it:
+
 ```groovy
 plugins {
   id 'org.ccrusius.erlang'
@@ -71,7 +69,7 @@ ext {
 
 # Compiling and Installing OTP Applications
 
-The `org.ccrusius.erlang.tasks.Application` task builds an application
+The `Application` task builds an application
 based on a source tree complying with the OTP standard. The
 application name and version will be obtained from the `.app` file
 inside the `ebin` directory. The task properties are as follows:
@@ -89,6 +87,9 @@ inside the `ebin` directory. The task properties are as follows:
 * `outDir` (optional): The output directory for the application. Leave
   it alone unless you really need to change it. The default is
   `$buildDir/erlang/lib/$appName-$appVersion`.
+* `addCompilerOpts` (optional method): Call it with a list of strings
+  to add to the arguments passed in to `erlc` when compiling the
+  `.beam` files.
 
 Example `build.gradle`:
 ```groovy
@@ -101,6 +102,7 @@ import org.ccrusius.erlang.tasks.Application
 task hello_world(type: Application) {
   version '1.0.0'
   baseDir '.'
+  addCompilerOpts('-Werror')
 }
 
 hello_world.finalize()
@@ -110,7 +112,7 @@ hello_world.finalize()
 > call its `finalize()` method. This will create all the necessary
 > subtasks and set up proper dependencies between them. The reason for
 > this is that this is the only way I could find to make Gradle create
-> sub-tasks for me. The reason why I want to create sub-tasks is to
+> sub-tasks for me. The reason why I _want_ to create sub-tasks is to
 > get full compilation parallelization by creating one separate task
 > for each `erlc` invocation. To see what gets done, look at the
 > created tasks with `./gradlew tasks --all`.
@@ -122,7 +124,7 @@ compiled.
 
 # Producing Releases with Reltool
 
-The `org.ccrusius.erlang.tasks.RelTool` task builds a release
+The `RelTool` task builds a release
 based on a given `reltool` configuration file.
 The task properties are as follows:
 
@@ -137,9 +139,6 @@ The task properties are as follows:
 * `outDir` (optional): The output directory for the release. Leave
   it alone unless you really need to change it. The default is
   `$buildDir/erlang/rel/$relName-$relVersion`.
-
-The `reltool` library directory search path will be determined
-automatically from the task's `Application` dependencies.
 
 Example `build.gradle`:
 ```groovy
@@ -158,27 +157,30 @@ task hello_world(type: Application) {
 hello_world.finalize()
 
 task release(type: RelTool) {
+  dependsOn hello_world
   version '1.0.0'
   configFile 'hello_world.config'
 }
 
-release.dependsOn hello_world
 release.finalize()
 ```
 
 > **IMPORTANT** After you create your `RelTool` task, you _must_
 > call its `finalize()` method. This will create all the necessary
-> subtasks and set up proper dependencies between them. The reason for
-> this is that this is the only way I could find to make Gradle create
-> sub-tasks for me.
-
+> subtasks and set up proper dependencies between them. The reasons
+> for this are similar to the reasons for having an
+> `Application.finalize()` method.
 
 # Using Precompiled Applications
 
 Precompiled OTP applications (any application that was compiled by a
 task other than `Application`) can be declared with the
 `PrecompiledApplication` task. This task takes only one parameter,
-`baseDir`, which points to the root of the OTP application.
+`baseDir`, which points to the root of the OTP application. One usage
+example is
+the [spoken-code project](https://github.com/ccrusius/spoken-code),
+which compiles dependencies using `rebar`, and then declares them as
+`PrecompiledApplication`s.
 
 # Dependencies
 
@@ -203,29 +205,3 @@ def two = erlang.eval('io:format("~w",[1+1]).')
 ```
 The `erlang.eval` function is just a shortcut for
 `erlang.installation.escript.eval`.
-
-# Compiling Erlang Code
-
-The plugin provides a `Compile` task with a few parameters, settable via
-the following functions:
-
-* `setSourceFile`: Specifies the path to the Erlang source file to be
-  compiled.
-* `setOutputDir`: Specifies the folder where the compiled file should
-  be placed. The name of the file will be the same as that of the
-  source file, with the appropriate extension. The default is to place
-  it in the same directory as the source file.
-* `setArguments`: Specifies extra arguments to pass to the Erlang
-  compiler.
-
-Example:
-```groovy
-task hello_world_beam(type: org.ccrusius.erlang.tasks.Compile) {
-  setSourceFile 'src/hello_world.erl'
-  setOutputDir 'ebin'
-  setArguments '-DMY_MACRO'
-}
-```
-
-Normally one will not have to use this task, unless Erlang is being
-compiled outside of an OTP application structure.

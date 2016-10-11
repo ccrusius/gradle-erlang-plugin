@@ -6,6 +6,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
@@ -98,7 +99,7 @@ class Conf extends DefaultTask {
   ///
   /// -------------------------------------------------------------------------
 
-  @Input
+  @Optional @Input
   String getVersion() {
     return this.version
   }
@@ -107,7 +108,7 @@ class Conf extends DefaultTask {
     this.version = version
   }
 
-  private String version
+  private String version = 'undefined'
 
   /// -------------------------------------------------------------------------
   ///

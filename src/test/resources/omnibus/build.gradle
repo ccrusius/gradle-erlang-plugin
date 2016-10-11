@@ -2,6 +2,7 @@ plugins {
   id 'org.ccrusius.erlang'
 }
 
+import org.ccrusius.erlang.tasks.Conf
 import org.ccrusius.erlang.tasks.RelTool
 import org.ccrusius.erlang.tasks.Application
 import org.ccrusius.erlang.tasks.PrecompiledApplication
@@ -25,3 +26,9 @@ task reltool(type: RelTool) {
 }
 
 reltool.finalize()
+
+task sysconfig(type: Conf) {
+  dependsOn reltool
+  setSource 'sys.config'
+  setOutput "$project.buildDir/erlang/rel/omnibus-1.0.0/releases/1.0.0/sys.config"
+}

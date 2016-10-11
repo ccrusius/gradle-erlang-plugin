@@ -29,12 +29,13 @@ class ErlangReleaseTest extends PluginTestBase {
     setTestBuildDir(buildDir)
 
     when:
-    def result = runGradleTask('reltool')
+    def result = runGradleTask('sysconfig')
 
     then:
-    result.task(':reltool').outcome == SUCCESS
+    result.task(':sysconfig').outcome == SUCCESS
     new File("${testBuildDir}/erlang/rel/omnibus-1.0.0/lib/echoer-1.0.0.ez").exists()
     new File("${testBuildDir}/erlang/rel/omnibus-1.0.0/lib/cranky-1.0.0.ez").exists()
     new File("${testBuildDir}/erlang/rel/omnibus-1.0.0/releases/1.0.0/omnibus.boot").exists()
+    new File("${testBuildDir}/erlang/rel/omnibus-1.0.0/releases/1.0.0/sys.config").exists()
   }
 }

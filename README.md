@@ -12,6 +12,7 @@
 - [Producing Releases with Reltool](#producing-releases-with-reltool)
 - [Using Precompiled Applications](#using-precompiled-applications)
 - [Dependencies](#dependencies)
+- [Using Rebar to Compile Dependencies](#using-rebar-to-compile-dependencies)
 - [Evaluating Erlang Code](#evaluating-erlang-code)
 
 <!-- markdown-toc end -->
@@ -195,6 +196,32 @@ depending on the tasks they depend on:
   (`lib_dir` statement in the `reltool` configuration file) to the
   applications, precompiled or not, that the task was declared to
   `dependOn`.
+
+# Using Rebar to Compile Dependencies
+
+A lot of Erlang applications are distributed with a `rebar` build
+configuration. If you need any as a dependency, download them (using
+`GrGit` or something similar, see
+the [spoken-code project](https://github.com/ccrusius/spoken-code)
+project for an example), and use the `Rebar` task to compile them:
+```groovy
+import org.ccrusius.erlang.tasks.Rebar
+
+task rebar(type: Rebar) {
+  setVersion '3.1.3' /// The rebar version
+  setTarget 'compile'
+  setDirectory 'path/to/dependency/source/tree'
+  outputs.file('generated/file')
+}
+
+rebar.finalize()
+```
+A few observations
+
+* The `finalize()` method is needed for the same reasons it is needed
+  in the `Application` and `RelTool` tasks.
+* You must specify one output file for the task: the system does not
+  know what `rebar` will generate, so you have to tell it explicitly.
 
 # Evaluating Erlang Code
 

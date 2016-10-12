@@ -1,0 +1,15 @@
+plugins {
+  id 'org.ccrusius.erlang'
+}
+
+import org.ccrusius.erlang.tasks.Rebar
+
+task podcast_rename(type: Rebar) {
+  setRebarVersion '2.6.4'
+  setRebarTarget 'compile'
+  setDirectory '.'
+  outputs.file('ebin/podcast_rename.beam')
+  outputs.file('ebin/podcast_rename.app')
+}
+
+podcast_rename.finalize()

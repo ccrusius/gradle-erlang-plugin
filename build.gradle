@@ -1,6 +1,7 @@
 plugins {
   id "com.zoltu.git-versioning" version "2.0.28"
   id "com.gradle.plugin-publish" version "0.9.5"
+  id 'org.ajoberstar.grgit' version '1.5.1'
 }
 
 apply plugin: 'groovy'
@@ -19,6 +20,7 @@ dependencies {
   testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
     exclude module: 'groovy-all'
   }
+  compile 'org.ajoberstar:gradle-git:1.5.1'
 }
 
 task createTestProperties {

@@ -1,0 +1,11 @@
+{application, podcast_rename,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { podcast_rename, []}}
+ ]}.

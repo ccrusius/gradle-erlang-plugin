@@ -3,13 +3,20 @@ plugins {
 }
 
 import org.ccrusius.erlang.tasks.Rebar
+import org.ccrusius.erlang.tasks.GitRepo
+
+task fetch(type: GitRepo) {
+  setGitRepo 'https://github.com/ccrusius/podcast-rename'
+  setGitTag 'v1.0'
+}
 
 task podcast_rename(type: Rebar) {
+  dependsOn fetch
   setRebarVersion '2.6.4'
   setRebarTarget 'compile'
-  setDirectory '.'
-  outputs.file('ebin/podcast_rename.beam')
-  outputs.file('ebin/podcast_rename.app')
+  setDirectory fetch.directory
+  outputs.file("${fetch.directory}/ebin/podcast_rename.beam")
+  outputs.file("${fetch.directory}/ebin/podcast_rename.app")
 }
 
 podcast_rename.finalize()

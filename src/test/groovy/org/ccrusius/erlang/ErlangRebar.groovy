@@ -21,7 +21,7 @@ class ErlangRebarTest extends PluginTestBase {
     then:
     result.task(':podcast_rename').outcome == SUCCESS
 
-    new File("${baseDir}/ebin/podcast_rename.app").exists()
-    new File("${baseDir}/ebin/podcast_rename.beam").exists()
+    new File("${buildDir}/erlang/ext/podcast-rename-v1.0/ebin/podcast_rename.app").exists()
+    new File("${buildDir}/erlang/ext/podcast-rename-v1.0/ebin/podcast_rename.beam").exists()
   }
 }

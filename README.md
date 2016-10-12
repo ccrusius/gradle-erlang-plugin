@@ -203,7 +203,7 @@ A lot of Erlang applications are distributed with a `rebar` build
 configuration. If you need any as a dependency, download them (using
 `GrGit` or something similar, see
 the [spoken-code project](https://github.com/ccrusius/spoken-code)
-project for an example), and use the `Rebar` task to compile them:
+for an example), and use the `Rebar` task to compile them:
 ```groovy
 import org.ccrusius.erlang.tasks.Rebar
 

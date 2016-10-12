@@ -90,8 +90,7 @@ class Rebar extends DefaultTask {
 
   @Internal
   File getRebarDir() {
-    if(this.rebarDir) { return project.file(this.rebarDir) }
-    return project.file("${project.buildDir}/erlang/ext/rebar-${getRebarVersion()}")
+    this.rebarDir
   }
 
   void setRebarDir(Object rebarDir) {
@@ -126,7 +125,8 @@ class Rebar extends DefaultTask {
   @Internal
   File getRebarExe() {
     def major = getRebarVersion()[0]
-    new File(getRebarDir(), major == '2' ? 'rebar' : "rebar${major}")
+    def dir = getFetchRebarTask().getDirectory()
+    new File(dir, major == '2' ? 'rebar' : "rebar${major}")
   }
 
   @Internal
@@ -166,9 +166,11 @@ class Rebar extends DefaultTask {
 
   @Internal
   Task getBuildRebarTask() {
-    def rebarDir = getRebarDir()
+    GitRepo fetchTask = getFetchRebarTask()
     def version = getRebarVersion()
     def name = "rebar-${version}-build"
+    def rebarDir = fetchTask.getDirectory()
+
     if(!this.buildRebarTask) {
       this.buildRebarTask = project.tasks.findByPath(name)
     }
@@ -177,7 +179,7 @@ class Rebar extends DefaultTask {
       this.buildRebarTask = project.tasks.create(name, DefaultTask.class)
       this.buildRebarTask.with {
         setDescription("Build rebar ${version} executable")
-        dependsOn getFetchRebarTask()
+        dependsOn fetchTask
         outputs.file(exe)
         doLast {
           def cmdline = [ './bootstrap' ]
@@ -205,7 +207,7 @@ class Rebar extends DefaultTask {
   /// -------------------------------------------------------------------------
 
   @Internal
-  Task getFetchRebarTask() {
+  GitRepo getFetchRebarTask() {
     def rebarDir = getRebarDir()
     def version = getRebarVersion()
     def name = "rebar-${version}-fetch"
@@ -214,22 +216,16 @@ class Rebar extends DefaultTask {
     }
     if(!this.fetchRebarTask) {
       def repo = getRebarRepo()
-      this.fetchRebarTask = project.tasks.create(name, DefaultTask.class)
+      this.fetchRebarTask = project.tasks.create(name, GitRepo.class)
       this.fetchRebarTask.with {
         setDescription("Fetch rebar ${version} sources from github")
-        outputs.file(new File("${rebarDir}/.git/ref/tags/${version}"))
-        outputs.file(new File("${rebarDir}/bootstrap"))
-        doLast {
-          def git = rebarDir.exists() ?
-            Grgit.init(dir: rebarDir) :
-            Grgit.clone(dir: rebarDir, uri: repo)
-          git.fetch()
-          git.reset(commit: version, mode: ResetOp.Mode.HARD)
-        }
+        setGitRepo(repo)
+        setGitTag(version)
+        setDirectory(rebarDir)
       }
     }
     return this.fetchRebarTask
   }
 
-  private Task fetchRebarTask
+  private GitRepo fetchRebarTask
 }

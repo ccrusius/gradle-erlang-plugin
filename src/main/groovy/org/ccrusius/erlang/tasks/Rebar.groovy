@@ -129,6 +129,12 @@ class Rebar extends DefaultTask {
     new File(getRebarDir(), major == '2' ? 'rebar' : "rebar${major}")
   }
 
+  @Internal
+  String getRebarRepo() {
+    def major = getRebarVersion()[0]
+    major == '2' ? 'https://github.com/rebar/rebar' : 'https://github.com/erlang/rebar3'
+  }
+
   /// -------------------------------------------------------------------------
   ///
   /// Task action: call rebar
@@ -141,7 +147,6 @@ class Rebar extends DefaultTask {
     String exe = FileUtils.getAbsolutePath(getRebarExe())
 
     def cmdline = [ exe, target ]
-    print("====== ${cmdline.join(',')}")
     def process = new ProcessBuilder(cmdline)
                       .redirectErrorStream(true)
                       .directory(getDirectory())
@@ -208,6 +213,7 @@ class Rebar extends DefaultTask {
       this.fetchRebarTask = project.tasks.findByPath(name)
     }
     if(!this.fetchRebarTask) {
+      def repo = getRebarRepo()
       this.fetchRebarTask = project.tasks.create(name, DefaultTask.class)
       this.fetchRebarTask.with {
         setDescription("Fetch rebar ${version} sources from github")
@@ -216,7 +222,7 @@ class Rebar extends DefaultTask {
         doLast {
           def git = rebarDir.exists() ?
             Grgit.init(dir: rebarDir) :
-            Grgit.clone(dir: rebarDir, uri: "https://github.com/rebar/rebar")
+            Grgit.clone(dir: rebarDir, uri: repo)
           git.fetch()
           git.reset(commit: version, mode: ResetOp.Mode.HARD)
         }

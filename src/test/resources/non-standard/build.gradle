@@ -10,19 +10,13 @@ task nonstandard1(type: Application) {
   outDir new File(project.buildDir, 'dir1-1.1.1')
 }
 
-nonstandard1.finalize()
-
 task nonstandard2(type: Application) {
   version '2.2.2'
   baseDir 'subdir'
   outDir new File(project.buildDir, 'dir2-2.2.2')
 }
 
-nonstandard2.finalize()
-
 task nonstandard3(type: Application) {
   version '3.3.3'
   baseDir 'subdir'
 }
-
-nonstandard3.finalize()

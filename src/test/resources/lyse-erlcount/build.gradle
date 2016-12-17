@@ -9,13 +9,9 @@ task ppool(type: Application) {
   baseDir "ppool"
 }
 
-ppool.finalize()
-
 task erlcount(type: Application) {
   baseDir "erlcount"
 }
-
-erlcount.finalize()
 
 task reltool(type: RelTool) {
   configFile 'erlcount.config'
@@ -23,5 +19,4 @@ task reltool(type: RelTool) {
   version "2.2.2"
 }
 
-reltool.finalize()
 reltool.dependsOn ebuild

@@ -17,15 +17,11 @@ task cranky(type: Application) {
   setCompilerOpts('-Werror')
 }
 
-cranky.finalize()
-
 task reltool(type: RelTool) {
   dependsOn echoer
   dependsOn cranky
   configFile 'omnibus.config'
 }
-
-reltool.finalize()
 
 task sysconfig(type: Conf) {
   dependsOn reltool

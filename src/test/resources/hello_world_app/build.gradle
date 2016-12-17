@@ -7,5 +7,3 @@ import org.ccrusius.erlang.tasks.Application
 task hello_world(type: Application) {
   baseDir "."
 }
-
-hello_world.finalize()

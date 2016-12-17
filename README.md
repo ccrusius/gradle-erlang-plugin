@@ -105,18 +105,7 @@ task hello_world(type: Application) {
   baseDir '.'
   addCompilerOpts('-Werror')
 }
-
-hello_world.finalize()
 ```
-
-> **IMPORTANT** After you create your `Application` task, you _must_
-> call its `finalize()` method. This will create all the necessary
-> subtasks and set up proper dependencies between them. The reason for
-> this is that this is the only way I could find to make Gradle create
-> sub-tasks for me. The reason why I _want_ to create sub-tasks is to
-> get full compilation parallelization by creating one separate task
-> for each `erlc` invocation. To see what gets done, look at the
-> created tasks with `./gradlew tasks --all`.
 
 When the Erlang plugin is applied, it will create an `ebuild` task,
 which will depend on all the application tasks for that project. This
@@ -155,22 +144,12 @@ task hello_world(type: Application) {
   baseDir '.'
 }
 
-hello_world.finalize()
-
 task release(type: RelTool) {
   dependsOn hello_world
   version '1.0.0'
   configFile 'hello_world.config'
 }
-
-release.finalize()
 ```
-
-> **IMPORTANT** After you create your `RelTool` task, you _must_
-> call its `finalize()` method. This will create all the necessary
-> subtasks and set up proper dependencies between them. The reasons
-> for this are similar to the reasons for having an
-> `Application.finalize()` method.
 
 # Using Precompiled Applications
 
@@ -213,15 +192,10 @@ task rebar(type: Rebar) {
   setDirectory 'path/to/dependency/source/tree'
   outputs.file('generated/file')
 }
-
-rebar.finalize()
 ```
-A few observations
 
-* The `finalize()` method is needed for the same reasons it is needed
-  in the `Application` and `RelTool` tasks.
-* You must specify one output file for the task: the system does not
-  know what `rebar` will generate, so you have to tell it explicitly.
+You must specify one output file for the task: the system does not
+know what `rebar` will generate, so you have to tell it explicitly.
 
 # Evaluating Erlang Code
 

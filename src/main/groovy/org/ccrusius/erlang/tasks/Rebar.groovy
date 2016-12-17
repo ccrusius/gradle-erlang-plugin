@@ -23,7 +23,6 @@ import org.ccrusius.erlang.utils.FileUtils
 ///   setRebarTarget "target"
 ///   setDirectory "dir"
 /// }
-/// rebar.finalize() /// THIS IS NECESSARY
 ///
 /// ===========================================================================
 @ParallelizableTask
@@ -38,8 +37,12 @@ class Rebar extends DefaultTask {
   /// Create all the sub-tasks, and set up dependencies
   ///
   /// -------------------------------------------------------------------------
-  void finalize() {
-    this.dependsOn getBuildRebarTask()
+  @Override
+  public Task configure(Closure configClosure) {
+    return super.configure(
+      configClosure >> {
+        this.dependsOn getBuildRebarTask()
+      })
   }
 
   /// -------------------------------------------------------------------------

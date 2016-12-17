@@ -22,7 +22,6 @@ import org.ccrusius.erlang.utils.RelFile
 ///   [version "version"]
 ///   [outDir dir]
 /// }
-/// reltool.finalize() /// THIS IS NECESSARY
 ///
 /// ===========================================================================
 @ParallelizableTask
@@ -38,8 +37,12 @@ class RelTool extends DefaultTask {
   /// Create all the sub-tasks, and set up dependencies
   ///
   /// -------------------------------------------------------------------------
-  void finalize() {
-    this.dependsOn getOutRelFileTask()
+  @Override
+  public Task configure(Closure configClosure) {
+    return super.configure(
+      configClosure >> {
+        dependsOn getOutRelFileTask()
+      })
   }
 
   /// -------------------------------------------------------------------------

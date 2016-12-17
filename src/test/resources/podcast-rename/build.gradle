@@ -18,5 +18,3 @@ task podcast_rename(type: Rebar) {
   outputs.file("${fetch.directory}/ebin/podcast_rename.beam")
   outputs.file("${fetch.directory}/ebin/podcast_rename.app")
 }
-
-podcast_rename.finalize()

@@ -25,7 +25,6 @@ import org.ccrusius.erlang.utils.AppFile
 ///   baseDir 'blah'
 ///   [outDir 'bloh']
 /// }
-/// my_app.finalize() /// THIS IS NECESSARY
 ///
 /// ===========================================================================
 @ParallelizableTask
@@ -51,9 +50,13 @@ class Application extends DefaultTask {
   /// Create all the sub-tasks, and set up dependencies
   ///
   /// -------------------------------------------------------------------------
-  void finalize() {
-    this.dependsOn getOutAppFileTask()
-    getOutBeamFileTasks().each { this.dependsOn it }
+  @Override
+  public Task configure(Closure configClosure) {
+    return super.configure(
+      configClosure >> {
+        dependsOn getOutAppFileTask()
+        getOutBeamFileTasks().each { this.dependsOn it }
+      })
   }
 
   /// -------------------------------------------------------------------------
